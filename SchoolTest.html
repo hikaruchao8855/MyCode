@@ -8,21 +8,14 @@
 <title>高中英文單字隨身背</title>
 <style>
   :root{
-    --bg:#0f111a;
-    --panel:#191c2b;
-    --panel2:#222639;
-    --line:#2e3450;
-    --txt:#e6e8f0;
-    --dim:#9aa1bb;
-    --accent:#7aa2ff;
-    --good:#4dd08a;
-    --bad:#ff7a8a;
-    --warn:#ffc46b;
+    --bg:#0f111a; --panel:#191c2b; --panel2:#222639; --line:#2e3450;
+    --txt:#e6e8f0; --dim:#9aa1bb; --accent:#7aa2ff;
+    --good:#4dd08a; --bad:#ff7a8a; --warn:#ffc46b;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
     font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif;}
-  body{min-height:100vh;min-height:100dvh;}
+  body{min-height:100vh;min-height:100dvh;overflow-x:hidden}
   #app{max-width:520px;margin:0 auto;padding:14px 14px calc(24px + env(safe-area-inset-bottom));}
   header{display:flex;align-items:center;gap:10px;padding:6px 2px 12px}
   header .ttl{font-size:19px;font-weight:700;letter-spacing:.3px}
@@ -59,9 +52,10 @@
     color:var(--txt);padding:9px 18px;font-size:15px}
   .tipline{text-align:center;color:var(--dim);font-size:13px;margin-top:6px}
   .note{margin-top:12px;font-size:13px;color:var(--dim);line-height:1.6;max-width:280px}
-  /* 選擇題 */
+  /* 選擇題／拼字 */
   .qbox{background:linear-gradient(160deg,#20253a,#171a29);border:1px solid var(--line);border-radius:20px;
-    padding:22px 16px;text-align:center;margin-bottom:14px;min-height:130px;display:flex;flex-direction:column;justify-content:center}
+    padding:22px 16px;text-align:center;margin-bottom:14px;min-height:130px;display:flex;flex-direction:column;justify-content:center;
+    position:relative}
   .qword{font-size:34px;font-weight:800;word-break:break-word}
   .qzh{font-size:28px;font-weight:800}
   .qtag{font-size:12px;color:var(--dim);margin-bottom:10px;letter-spacing:1px}
@@ -69,16 +63,35 @@
     background:var(--panel2);color:var(--txt);font-size:17px;margin-bottom:9px;padding:12px 14px;text-align:left}
   .opt .idx{width:26px;height:26px;flex:0 0 26px;border-radius:8px;background:#0e1120;border:1px solid var(--line);
     display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--dim)}
-  .opt.right{background:#1f4a38;border-color:var(--good)}
-  .opt.wrong{background:#4a2330;border-color:var(--bad)}
-  .opt.dim{opacity:.5}
-  /* 拼字 */
+  .opt.right{background:#1f4a38;border-color:var(--good);animation:pop .38s ease-out}
+  .opt.wrong{background:#4a2330;border-color:var(--bad);animation:shake .42s ease-out}
+  .opt.dim{opacity:.45}
+  @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.045)}100%{transform:scale(1)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}55%{transform:translateX(7px)}80%{transform:translateX(-3px)}}
   input[type=text]{width:100%;min-height:58px;border-radius:14px;border:1px solid var(--line);background:#0b0d15;
     color:var(--txt);font-size:22px;padding:12px 14px;letter-spacing:1px;text-align:center}
   input[type=text]:focus{outline:none;border-color:var(--accent)}
   .hintline{text-align:center;color:var(--warn);font-size:18px;letter-spacing:3px;margin:12px 0;font-family:ui-monospace,Consolas,monospace}
-  .fb{text-align:center;font-size:17px;font-weight:700;min-height:26px;margin:10px 0}
-  .fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+  .fbline{text-align:center;font-size:18px;font-weight:800;min-height:28px;margin:8px 0 4px}
+  .fbline.ok{color:var(--good)} .fbline.no{color:var(--bad)}
+  .fbsub{text-align:center;font-size:14px;color:var(--dim);min-height:20px;margin-bottom:6px;word-break:break-word}
+  /* 回饋動畫層 */
+  .stamp{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);font-size:120px;font-weight:900;
+    pointer-events:none;z-index:60;line-height:1;animation:stampIn .85s ease-out forwards}
+  .stamp.ok{color:var(--good);text-shadow:0 0 34px rgba(77,208,138,.65)}
+  .stamp.no{color:var(--bad);text-shadow:0 0 34px rgba(255,122,138,.65)}
+  @keyframes stampIn{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.35) rotate(-20deg)}
+    30%{opacity:1;transform:translate(-50%,-50%) scale(1.18) rotate(-8deg)}
+    68%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-8deg)}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(1.06) rotate(-8deg)}}
+  .flash{position:fixed;inset:0;pointer-events:none;z-index:50;animation:flashOut .65s ease-out forwards}
+  .flash.ok{background:radial-gradient(circle at 50% 36%, rgba(77,208,138,.38), rgba(77,208,138,0) 70%)}
+  .flash.no{background:radial-gradient(circle at 50% 36%, rgba(255,122,138,.38), rgba(255,122,138,0) 70%)}
+  @keyframes flashOut{from{opacity:1}to{opacity:0}}
+  .streak{display:inline-block;background:#2a2350;border:1px solid #4b3fa0;color:#cfc6ff;
+    border-radius:99px;padding:3px 10px;font-size:12px;font-weight:700;margin-left:6px;animation:pop .4s ease-out}
+  .streak.hot{background:#4a2a10;border-color:#a35d1d;color:#ffd9a3}
   /* 清單 */
   .item{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
     border-radius:14px;padding:12px 14px;margin-bottom:8px}
@@ -88,21 +101,27 @@
   .item .dot.on{background:var(--good);box-shadow:0 0 8px var(--good)}
   .item .acts{margin-left:auto;display:flex;gap:8px}
   .mini{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:8px 11px;font-size:13px}
+  .switchrow{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:14px;margin-bottom:8px;font-size:16px;font-weight:600}
+  .switchrow .sub{display:block;font-size:12px;color:var(--dim);font-weight:400;margin-top:3px}
+  .switchrow input{width:24px;height:24px;margin-left:auto;flex:0 0 24px}
   .empty{text-align:center;color:var(--dim);padding:26px 10px;font-size:14px;line-height:1.7}
   .stat{display:flex;gap:10px;margin-bottom:12px}
   .stat > div{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
   .stat b{display:block;font-size:22px}
   .stat span{font-size:12px;color:var(--dim)}
-  .big{font-size:44px;text-align:center;margin:6px 0}
+  .big{font-size:44px;text-align:center;margin:6px 0;animation:pop .5s ease-out}
   .center{text-align:center}
   .foot{text-align:center;color:#5d6484;font-size:11px;margin-top:14px;line-height:1.7}
+  .diag{font-size:12px;color:var(--dim);line-height:1.8;background:#0b0d15;border:1px solid var(--line);
+    border-radius:12px;padding:12px;word-break:break-word}
 </style>
 </head>
 <body>
 <div id="app"></div>
 
 <script>
-/* ================= 單字資料 ================= */
+/* ================= 單字資料（釋義沿用主人原稿，補充另列 note） ================= */
 const WORDS = [
   {w:"employ", z:"僱用"},
   {w:"corporation", z:"公司"},
@@ -160,8 +179,9 @@ const WORDS = [
 const TOTAL = WORDS.length;
 const LSKEY = "vocab_high_en_v1";
 
-/* ================= 進度存取（localStorage 失敗也照樣能玩） ================= */
-const DEF = {learned:[], wrong:[], q:0, right:0, last:0};
+/* ================= 設定與進度 ================= */
+const DEFSET = {sfx:true, auto:true, vib:true};
+const DEF = {learned:[], wrong:[], q:0, right:0, last:0, set:{}};
 let S = load();
 
 function load(){
@@ -172,15 +192,21 @@ function load(){
       return {
         learned: Array.isArray(o.learned)?o.learned:[],
         wrong:   Array.isArray(o.wrong)?o.wrong:[],
-        q: o.q||0, right: o.right||0, last: o.last||0
+        q: o.q||0, right: o.right||0, last: o.last||0,
+        set: Object.assign({}, DEFSET, o.set||{})
       };
     }
   }catch(e){}
-  return JSON.parse(JSON.stringify(DEF));
+  const d = JSON.parse(JSON.stringify(DEF)); d.set = Object.assign({}, DEFSET);
+  return d;
 }
 function save(){
   try{ localStorage.setItem(LSKEY, JSON.stringify(S)); }catch(e){}
 }
+const SET = new Proxy({}, {
+  get:function(t,k){ return S.set[k]; },
+  set:function(t,k,v){ S.set[k] = v; save(); return true; }
+});
 
 /* ================= 小工具 ================= */
 function esc(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
@@ -192,16 +218,122 @@ function markLearned(i){ if(!isLearned(i)) S.learned.push(i); }
 function addWrong(i){ if(!isWrong(i)) S.wrong.push(i); }
 function delWrong(i){ const k=S.wrong.indexOf(i); if(k>=0) S.wrong.splice(k,1); }
 
-function speak(text){
+/* ================= 音效（WebAudio，不需任何音檔） ================= */
+let AC = null;
+function ac(){
   try{
-    if(!window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    const en = text.replace(/\.\.\./g," ");
-    u.lang = "en-US"; u.rate = 0.85; u.pitch = 1;
-    window.speechSynthesis.speak(u);
+    if(!AC){
+      const C = window.AudioContext || window.webkitAudioContext;
+      if(!C) return null;
+      AC = new C();
+    }
+    if(AC.state === "suspended"){ try{ AC.resume(); }catch(e){} }
+    return AC;
+  }catch(e){ return null; }
+}
+function tone(freq, delay, dur, type, vol){
+  const c = ac(); if(!c) return;
+  try{
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type || "sine";
+    o.frequency.value = freq;
+    o.connect(g); g.connect(c.destination);
+    const t0 = c.currentTime + (delay||0);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(vol||0.16, t0+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+(dur||0.15));
+    o.start(t0); o.stop(t0+(dur||0.15)+0.03);
   }catch(e){}
 }
+function sfx(kind, streak){
+  if(!SET.sfx) return;
+  if(kind==="right"){
+    tone(659.25, 0,    0.12, "triangle", 0.16);
+    tone(987.77, 0.085,0.18, "triangle", 0.15);
+    if(streak && streak>=3) tone(1318.5, 0.19, 0.24, "triangle", 0.15);
+    if(streak && streak>=5) tone(1567.98,0.28, 0.28, "sine", 0.12);
+  }else if(kind==="wrong"){
+    tone(233.08, 0,    0.17, "sine", 0.15);
+    tone(155.56, 0.14, 0.28, "sine", 0.15);
+  }else if(kind==="card"){
+    tone(880, 0, 0.14, "sine", 0.13);
+  }else if(kind==="tap"){
+    tone(1200, 0, 0.05, "sine", 0.06);
+  }
+}
+function buzz(kind){
+  if(!SET.vib) return;
+  try{
+    if(!navigator.vibrate) return;
+    if(kind==="right") navigator.vibrate(28);
+    else if(kind==="wrong") navigator.vibrate([45,70,45]);
+  }catch(e){}
+}
+
+/* ================= 語音朗讀 ================= */
+let voice = null;
+function pickVoice(){
+  try{
+    const s = window.speechSynthesis; if(!s) return null;
+    const vs = s.getVoices() || [];
+    if(!vs.length) return null;
+    const want = ["Google US English","Samantha","Aria","Ava","Zira","Jenny","Karen","Daniel","Google UK English Female"];
+    for(let k=0;k<want.length;k++){
+      for(let j=0;j<vs.length;j++){
+        if(vs[j].name && vs[j].name.indexOf(want[k])>=0 && /^en/i.test(vs[j].lang||"")) return vs[j];
+      }
+    }
+    for(let j=0;j<vs.length;j++){ if(/^en[-_]US/i.test(vs[j].lang||"")) return vs[j]; }
+    for(let j=0;j<vs.length;j++){ if(/^en/i.test(vs[j].lang||"")) return vs[j]; }
+  }catch(e){}
+  return null;
+}
+function refreshVoice(){ const v = pickVoice(); if(v) voice = v; }
+if(window.speechSynthesis){
+  refreshVoice();
+  try{ window.speechSynthesis.onvoiceschanged = refreshVoice; }catch(e){}
+}
+/* 修正關鍵：cancel() 之後「同一個瞬間」再 speak，Chrome 會把新的那句吃掉 → 一律延後再唸 */
+function speak(text, rate){
+  try{
+    const s = window.speechSynthesis; if(!s) return;
+    const t = String(text||"").replace(/\.\.\./g," ").trim();
+    if(!t) return;
+    if(!voice) refreshVoice();
+    const u = new SpeechSynthesisUtterance(t);
+    u.lang = (voice && voice.lang) ? voice.lang : "en-US";
+    u.rate = rate || 0.85; u.pitch = 1; u.volume = 1;
+    if(voice) u.voice = voice;
+    const fire = function(){ try{ s.speak(u); }catch(e){} };
+    if(s.speaking || s.pending){ try{ s.cancel(); }catch(e){} setTimeout(fire, 150); }
+    else fire();
+  }catch(e){}
+}
+/* 只唸一次（避免畫面重繪時重複朗讀） */
+let spokenToken = null;
+function speakOnce(token, text, rate){
+  if(spokenToken === token) return;
+  spokenToken = token;
+  speak(text, rate);
+}
+/* 手機解鎖：iOS 需要在第一次使用者觸碰時才允許語音與音效 */
+let unlocked = false;
+function unlockMedia(){
+  if(unlocked) return; unlocked = true;
+  ac();
+  try{
+    const s = window.speechSynthesis;
+    if(s){
+      const u = new SpeechSynthesisUtterance(" ");
+      u.volume = 0; u.lang = "en-US"; u.rate = 1.2;
+      s.speak(u);
+    }
+  }catch(e){}
+  refreshVoice();
+}
+["touchstart","pointerdown","keydown"].forEach(function(ev){
+  document.addEventListener(ev, unlockMedia, {passive:true});
+});
 
 /* ================= 路由 ================= */
 const app = document.getElementById("app");
@@ -209,8 +341,8 @@ let view = {name:"home"};
 
 function go(name, data){ view = {name:name, data:data||{}}; render(); window.scrollTo(0,0); }
 
-function header(title, sub, backTo){
-  return '<header><div><div class="ttl">'+esc(title)+'</div>'+(sub?'<div class="sub">'+esc(sub)+'</div>':'')+'</div>'+
+function header(title, sub, backTo, badge){
+  return '<header><div><div class="ttl">'+esc(title)+(badge||'')+'</div>'+(sub?'<div class="sub">'+esc(sub)+'</div>':'')+'</div>'+
     (backTo?'<button class="back" data-go="'+backTo+'">回首頁</button>':'')+'</header>';
 }
 
@@ -228,7 +360,22 @@ function render(){
   }
   app.innerHTML = html;
   bind();
-  if(view.name==="card") speakIfAuto();
+  afterRender();
+}
+
+/* 畫面出現後要自動做的事（朗讀、回饋動畫已由 HTML 插入自動播放） */
+let suppressAuto = false;
+function afterRender(){
+  if(suppressAuto){ suppressAuto = false; return; }
+  if(view.name==="card" && SET.auto){
+    const i = cardState.order[cardState.pos];
+    if(i!=null && !cardState.flipped) speakOnce("card:"+i, WORDS[i].w);
+  }
+  if(view.name==="quiz" && SET.auto && quizState.picked===null){
+    const i = quizState.qs[quizState.pos];
+    // 中→英的題目如果把答案唸出來等於送分，這種只在答完後唸
+    if(i!=null && quizState.mode==="en2zh") speakOnce("q:"+quizState.pos+":"+i, WORDS[i].w);
+  }
 }
 
 /* ---------- 首頁 ---------- */
@@ -242,20 +389,20 @@ function viewHome(){
        '<div class="bar"><i style="width:'+pct+'%"></i></div>'+
        '<div class="rowline"><span>答題數 '+S.q+'</span><span>答對率 '+acc+'%</span></div></div>';
 
-  h += '<button class="btn primary" data-go="card"><span class="em">📖</span>學習卡<span class="hint">一張一張翻，先看英文再看中文</span></button>';
-  h += '<button class="btn" data-go="quiz" data-mode="en2zh"><span class="em">🔵</span>看英文選中文<span class="hint">10 題四選一</span></button>';
-  h += '<button class="btn" data-go="quiz" data-mode="zh2en"><span class="em">🟠</span>看中文選英文<span class="hint">10 題四選一</span></button>';
+  h += '<button class="btn primary" data-go="card"><span class="em">📖</span>學習卡<span class="hint">一張一張翻，自動唸給你聽</span></button>';
+  h += '<button class="btn" data-go="quiz" data-mode="en2zh"><span class="em">🔵</span>看英文選中文<span class="hint">10 題四選一，出題先唸一次</span></button>';
+  h += '<button class="btn" data-go="quiz" data-mode="zh2en"><span class="em">🟠</span>看中文選英文<span class="hint">10 題四選一，答完唸正解</span></button>';
   h += '<button class="btn" data-go="spell"><span class="em">⌨️</span>拼字測驗<span class="hint">看中文，把英文拼出來</span></button>';
   h += '<button class="btn '+(wn?'bad':'ghost')+'" data-go="wrong"><span class="em">🔁</span>錯題複習'+
        (wn?'<span class="hint">目前 '+wn+' 字，優先練這些</span>':'<span class="hint">還沒有錯題，很棒</span>')+'</button>';
   h += '<button class="btn ghost" data-go="browse"><span class="em">📋</span>單字一覽<span class="hint">全部 '+TOTAL+' 字＋發音</span></button>';
-  h += '<button class="btn ghost" data-go="list"><span class="em">⚙️</span>進度與設定<span class="hint">看學會了哪些、重置紀錄</span></button>';
+  h += '<button class="btn ghost" data-go="list"><span class="em">⚙️</span>進度與設定<span class="hint">音效、發音、重置紀錄</span></button>';
   h += '<div class="foot">進度存在這支手機裡，關掉網頁也會保留。<br>手機請用 Chrome／Safari 開啟。</div>';
   return h;
 }
 
 /* ---------- 學習卡 ---------- */
-let cardState = {order:[], pos:0, flipped:false, auto:false};
+let cardState = {order:[], pos:0, flipped:false};
 
 function viewCard(){
   if(!cardState.order.length){
@@ -270,7 +417,7 @@ function viewCard(){
   h += '<div class="cardbox'+(cardState.flipped?" flipped":"")+'" id="cbox">'+
          '<div class="flipper">'+
            '<div class="face front"><div class="en">'+esc(w.w)+'</div>'+
-             '<button class="spk" data-speak="'+esc(w.w)+'">🔊 聽發音</button></div>'+
+             '<button class="spk" data-speak="'+esc(w.w)+'">🔊 再唸一次</button></div>'+
            '<div class="face back"><div class="zh">'+esc(w.z)+'</div><div class="spk" style="margin-top:14px">'+esc(w.w)+'</div>'+
              (w.note?'<div class="note">'+esc(w.note)+'</div>':'')+'</div>'+
          '</div></div>';
@@ -279,16 +426,12 @@ function viewCard(){
   h += '<button class="btn good" data-act="known"><span class="em">✅</span>記住了<span class="hint">這輪不再出現</span></button>';
   h += '<button class="btn bad" data-act="unknown"><span class="em">🔁</span>不熟，再練一次<span class="hint">會排到後面，並進錯題本</span></button>';
   h += '<button class="btn ghost" data-act="flip">🔄 翻面</button>';
-  h += '<label class="item" style="margin-top:6px"><span class="w">自動唸出單字</span>'+
-       '<span class="acts"><input type="checkbox" id="autoSpeak" '+(cardState.auto?"checked":"")+' style="width:22px;height:22px"></span></label>';
   return h;
 }
-function speakIfAuto(){ if(cardState.auto){ const i=cardState.order[cardState.pos]; if(i!=null) speak(WORDS[i].w); } }
-
-function cardNext(){ cardState.pos++; cardState.flipped=false; if(cardState.pos>=cardState.order.length){ go("home"); } else { render(); } }
 function cardKnown(){
   const i = cardState.order[cardState.pos];
   markLearned(i); delWrong(i); save();
+  sfx("card"); buzz("right");
   cardState.order.splice(cardState.pos,1);
   if(cardState.pos>=cardState.order.length) cardState.pos = cardState.order.length-1;
   if(cardState.order.length===0){ go("home"); } else { cardState.flipped=false; render(); }
@@ -296,16 +439,18 @@ function cardKnown(){
 function cardUnknown(){
   const i = cardState.order[cardState.pos];
   addWrong(i); save();
-  // 排到後面再練一次
+  sfx("wrong"); buzz("wrong");
   cardState.order.splice(cardState.pos,1);
   cardState.order.push(i);
   if(cardState.pos>=cardState.order.length) cardState.pos = 0;
   cardState.flipped = false;
+  suppressAuto = true;   /* 這張不要讓自動朗讀插隊，等一下只唸「不熟的那個字」 */
   render();
+  speak(WORDS[i].w);
 }
 
 /* ---------- 選擇題 ---------- */
-let quizState = {mode:"en2zh", qs:[], pos:0, right:0, picked:null, pool:null};
+let quizState = {mode:"en2zh", qs:[], pos:0, right:0, picked:null, pool:null, opts:null, streak:0, best:0};
 let lastRun = {type:"quiz", mode:"en2zh", pool:null};
 
 function buildQuiz(mode, pool){
@@ -314,7 +459,7 @@ function buildQuiz(mode, pool){
   const n = Math.min(10, idx.length);
   const qs = [];
   for(let k=0;k<n;k++) qs.push(idx[k]);
-  quizState = {mode:mode, qs:qs, pos:0, right:0, picked:null, pool:pool||null};
+  quizState = {mode:mode, qs:qs, pos:0, right:0, picked:null, pool:pool||null, opts:null, streak:0, best:0};
   lastRun = {type:"quiz", mode:mode, pool:pool||null};
 }
 function makeOpts(ci){
@@ -329,59 +474,83 @@ function makeOpts(ci){
   return shuffle(opts);
 }
 function viewQuiz(){
-  if(!quizState.qs.length) buildQuiz(view.data.mode||quizState.mode, view.data.pool||null);
+  if(!quizState.qs.length) buildQuiz(view.data.mode||"en2zh", view.data.pool||null);
   const i = quizState.qs[quizState.pos];
   const w = WORDS[i];
   const en2zh = quizState.mode==="en2zh";
   const opts = quizState.opts || (quizState.opts = makeOpts(i));
-  let h = header(en2zh?"看英文選中文":"看中文選英文", "第 "+(quizState.pos+1)+" / "+quizState.qs.length+" 題　答對 "+quizState.right, "home");
+  const answered = quizState.picked !== null;
+  const wasRight = answered && quizState.picked === i;
+
+  let badge = "";
+  if(quizState.streak>=2){
+    badge = '<span class="streak'+(quizState.streak>=5?" hot":"")+'">連續答對 '+quizState.streak+'</span>';
+  }
+  let h = header("看英文選中文".replace("看英文選中文", en2zh?"看英文選中文":"看中文選英文"),
+                 "第 "+(quizState.pos+1)+" / "+quizState.qs.length+" 題　答對 "+quizState.right, "home", badge);
   h += '<div class="bar"><i style="width:'+Math.round(quizState.pos*100/quizState.qs.length)+'%"></i></div>';
   h += '<div style="height:12px"></div>';
   h += '<div class="qbox"><div class="qtag">'+(en2zh?"這個字是什麼意思？":"這個意思的英文是？")+'</div>'+
-        (en2zh?'<div class="qword">'+esc(w.w)+'</div><button class="spk" data-speak="'+esc(w.w)+'" style="margin-top:12px">🔊 聽發音</button>'
+        (en2zh?'<div class="qword">'+esc(w.w)+'</div><button class="spk" data-speak="'+esc(w.w)+'" style="margin-top:12px">🔊 再唸一次</button>'
               :'<div class="qzh">'+esc(w.z)+'</div>')+'</div>';
   const letters = ["A","B","C","D"];
   for(let k=0;k<opts.length;k++){
     const oi = opts[k];
     let cls = "opt";
-    if(quizState.picked!=null){
+    if(answered){
       if(oi===i) cls += " right";
       else if(oi===quizState.picked) cls += " wrong";
       else cls += " dim";
     }
     h += '<button class="'+cls+'" data-opt="'+oi+'"><span class="idx">'+letters[k]+'</span><span>'+
-         esc(en2zh?WORDS[oi].z:WORDS[oi].w)+'</span></button>';
+         esc(en2zh?WORDS[oi].z:WORDS[oi].w)+'</span>'+
+         (answered && oi===i ? '　<span style="margin-left:auto">✓</span>' : '')+
+         (answered && oi===quizState.picked && oi!==i ? '　<span style="margin-left:auto">✗</span>' : '')+
+         '</button>';
+  }
+  if(answered){
+    h += '<div class="fbline '+(wasRight?"ok":"no")+'">'+(wasRight?"✅ 答對了！":'❌ 答錯了')+'</div>'+
+         '<div class="fbsub">'+(wasRight?'<span style="color:var(--good)">+1 學會</span>'+(quizState.streak>=3?'　🔥 連續答對 '+quizState.streak+' 題！':'')
+                                        :'正確答案：'+esc(w.w)+'　（'+esc(w.z)+'）')+'</div>';
+    h += '<div class="flash '+(wasRight?"ok":"no")+'"></div>';
+    h += '<div class="stamp '+(wasRight?"ok":"no")+'">'+(wasRight?"✓":"✗")+'</div>';
   }
   return h;
 }
 function answer(oi){
   if(quizState.picked!=null) return;
   const i = quizState.qs[quizState.pos];
+  const w = WORDS[i];
   quizState.picked = oi;
-  S.q++; 
-  if(oi===i){ S.right++; quizState.right++; markLearned(i); delWrong(i); }
-  else { addWrong(i); }
+  S.q++;
+  const ok = (oi===i);
+  if(ok){ S.right++; quizState.right++; quizState.streak++; if(quizState.streak>quizState.best) quizState.best=quizState.streak; markLearned(i); delWrong(i); }
+  else { quizState.streak = 0; addWrong(i); }
   save();
+  sfx(ok?"right":"wrong", quizState.streak); buzz(ok?"right":"wrong");
   render();
+  // 答完之後再唸一次正解單字（加深印象）
+  speakOnce("ans:"+quizState.pos+":"+i, w.w, ok?0.85:0.7);
   setTimeout(function(){
     quizState.pos++; quizState.picked = null; quizState.opts = null;
-    if(quizState.pos>=quizState.qs.length){ go("result", {score:quizState.right, total:quizState.qs.length}); }
+    if(quizState.pos>=quizState.qs.length){
+      go("result", {score:quizState.right, total:quizState.qs.length, best:quizState.best, mode:quizState.mode});
+    }
     else render();
-  }, 900);
+  }, ok?950:1500);
 }
 
 /* ---------- 拼字 ---------- */
-let spellState = {qs:[], pos:0, right:0, checked:false, pool:null, typed:""};
+let spellState = {qs:[], pos:0, right:0, checked:false, pool:null, typed:"", ok:null, streak:0, best:0};
 
 function buildSpell(pool){
   const idx = pool && pool.length ? pool.slice() : range(0,TOTAL);
   shuffle(idx);
   const n = Math.min(10, idx.length);
-  spellState = {qs: idx.slice(0,n), pos:0, right:0, checked:false, pool:pool||null, typed:""};
+  spellState = {qs: idx.slice(0,n), pos:0, right:0, checked:false, pool:pool||null, typed:"", ok:null, streak:0, best:0};
   lastRun = {type:"spell", mode:"spell", pool:pool||null};
 }
 function hintOf(str){
-  // 只露首字母與長度，空格與符號照留
   let out = "";
   for(let k=0;k<str.length;k++){
     const c = str[k];
@@ -396,19 +565,26 @@ function viewSpell(){
   if(!spellState.qs.length) buildSpell(view.data.pool||null);
   const i = spellState.qs[spellState.pos];
   const w = WORDS[i];
-  let h = header("拼字測驗", "第 "+(spellState.pos+1)+" / "+spellState.qs.length+" 題　答對 "+spellState.right, "home");
+  let badge = "";
+  if(spellState.streak>=2) badge = '<span class="streak'+(spellState.streak>=5?" hot":"")+'">連續答對 '+spellState.streak+'</span>';
+  let h = header("拼字測驗", "第 "+(spellState.pos+1)+" / "+spellState.qs.length+" 題　答對 "+spellState.right, "home", badge);
   h += '<div class="bar"><i style="width:'+Math.round(spellState.pos*100/spellState.qs.length)+'%"></i></div>';
   h += '<div style="height:12px"></div>';
   h += '<div class="qbox"><div class="qtag">請拼出這個意思的英文</div><div class="qzh">'+esc(w.z)+'</div>'+
        '<div class="hintline">'+esc(hintOf(w.w))+'（'+w.w.length+' 字母）</div></div>';
   h += '<input type="text" id="spellIn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="在這裡打英文" value="'+esc(spellState.typed||"")+'">';
-  h += '<div class="fb" id="spellFb">'+(spellState.checked ? (spellState.ok?'<span class="ok">答對了！</span>':'<span class="no">正確答案：'+esc(w.w)+'</span>') : '')+'</div>';
-  if(!spellState.checked){
-    h += '<button class="btn primary" data-act="checkSpell">確定</button>';
-  }else{
+  if(spellState.checked){
+    h += '<div class="fbline '+(spellState.ok?"ok":"no")+'">'+(spellState.ok?"✅ 拼對了！":'❌ 拼錯了')+'</div>'+
+         '<div class="fbsub">'+(spellState.ok?(spellState.streak>=3?'🔥 連續答對 '+spellState.streak+' 題！':'+1 學會')
+                                      :'正確拼法：'+esc(w.w))+'</div>'+
+         '<div class="flash '+(spellState.ok?"ok":"no")+'"></div>'+
+         '<div class="stamp '+(spellState.ok?"ok":"no")+'">'+(spellState.ok?"✓":"✗")+'</div>';
     h += '<button class="btn primary" data-act="nextSpell">下一題</button>';
+  }else{
+    h += '<div class="fbline"></div><div class="fbsub">拼完後按下面的按鈕</div>';
+    h += '<button class="btn primary" data-act="checkSpell">確定</button>';
   }
-  h += '<button class="btn ghost" data-act="skip">🔊 聽發音提示</button>';
+  h += '<button class="btn ghost" data-act="listen">🔊 聽發音提示</button>';
   return h;
 }
 function checkSpell(){
@@ -417,35 +593,41 @@ function checkSpell(){
   const w = WORDS[i];
   const el = document.getElementById("spellIn");
   const val = (el?el.value:"").trim().toLowerCase().replace(/\s+/g," ");
-  const ans = w.w.toLowerCase();
-  const ok = (val === ans);
+  const ok = (val === w.w.toLowerCase());
   spellState.checked = true; spellState.ok = ok; spellState.typed = (el?el.value:"");
   S.q++;
-  if(ok){ S.right++; spellState.right++; markLearned(i); delWrong(i); }
-  else { addWrong(i); }
+  if(ok){ S.right++; spellState.right++; spellState.streak++; if(spellState.streak>spellState.best) spellState.best=spellState.streak; markLearned(i); delWrong(i); }
+  else { spellState.streak = 0; addWrong(i); }
   save();
+  sfx(ok?"right":"wrong", spellState.streak); buzz(ok?"right":"wrong");
   render();
-  if(ok){
-    setTimeout(function(){ nextSpell(); }, 700);
-  }else{
-    setTimeout(function(){ nextSpell(); }, 1700);
-  }
+  speakOnce("spans:"+spellState.pos+":"+i, w.w, ok?0.85:0.68);
+  if(ok) setTimeout(nextSpell, 950);
 }
 function nextSpell(){
-  spellState.pos++; spellState.checked=false; spellState.typed="";
-  if(spellState.pos>=spellState.qs.length){ go("result", {score:spellState.right, total:spellState.qs.length}); }
-  else { render(); const n=document.getElementById("spellIn"); if(n) n.focus(); }
+  spellState.pos++; spellState.checked=false; spellState.typed=""; spellState.ok=null;
+  if(spellState.pos>=spellState.qs.length){
+    go("result", {score:spellState.right, total:spellState.qs.length, best:spellState.best, mode:"spell"});
+  }else{
+    render(); const n=document.getElementById("spellIn"); if(n) n.focus();
+  }
 }
 
 /* ---------- 成績 ---------- */
 function viewResult(){
   const r = view.data || {score:0,total:0};
   const pct = r.total?Math.round(r.score*100/r.total):0;
-  let word = pct>=90?"太強了！":pct>=70?"不錯喔，再練一下就穩了。":"沒關係，錯題本已經記下來了。";
+  let msg, mark;
+  if(pct>=90){ msg="太強了，幾乎全對！"; mark="🏆"; }
+  else if(pct>=70){ msg="不錯喔，再練一下就穩了。"; mark="👏"; }
+  else if(pct>=40){ msg="有進步空間，錯題本已經記下來了。"; mark="💪"; }
+  else { msg="別急，先把錯題本練熟再回來。"; mark="🌱"; }
   let h = header("本回結果","", "home");
-  h += '<div class="card center"><div class="big">'+r.score+' / '+r.total+'</div>'+
+  h += '<div class="card center"><div class="big">'+mark+'</div>'+
+       '<div class="big">'+r.score+' / '+r.total+'</div>'+
        '<div style="color:var(--dim);font-size:15px">答對率 '+pct+'%</div>'+
-       '<div style="margin-top:12px;font-size:17px;font-weight:700">'+word+'</div></div>';
+       (r.best>=2?'<div class="streak'+(r.best>=5?" hot":"")+'" style="margin-top:12px;font-size:14px">最長連續答對 '+r.best+' 題</div>':'')+
+       '<div style="margin-top:14px;font-size:17px;font-weight:700">'+msg+'</div></div>';
   h += '<button class="btn primary" data-act="again">再練一回（同模式）</button>';
   h += '<button class="btn bad" data-go="wrong">🔁 練錯題本（'+S.wrong.length+' 字）</button>';
   h += '<button class="btn ghost" data-go="home">回首頁</button>';
@@ -491,12 +673,24 @@ function viewBrowse(){
 function viewList(){
   const learned = S.learned.length;
   const acc = S.q?Math.round(S.right*100/S.q):0;
+  const vs = (window.speechSynthesis && window.speechSynthesis.getVoices) ? window.speechSynthesis.getVoices().length : 0;
   let h = header("進度與設定","", "home");
   h += '<div class="stat"><div><b>'+learned+'</b><span>已學會</span></div>'+
        '<div><b>'+S.wrong.length+'</b><span>錯題</span></div>'+
        '<div><b>'+S.q+'</b><span>答題數</span></div>'+
        '<div><b>'+acc+'%</b><span>答對率</span></div></div>';
-  h += '<div class="card"><div style="font-size:15px;font-weight:700;margin-bottom:8px">已學會的單字</div>'+
+
+  h += '<div class="card" style="padding:12px 14px"><div style="font-size:15px;font-weight:700;margin-bottom:6px">聲音設定</div></div>';
+  h += '<label class="switchrow"><span>答題音效<span class="sub">答對叮咚、答錯低沉音</span></span><input type="checkbox" data-set="sfx" '+(SET.sfx?"checked":"")+'></label>';
+  h += '<label class="switchrow"><span>自動朗讀單字<span class="sub">出題與答完各唸一次英文</span></span><input type="checkbox" data-set="auto" '+(SET.auto?"checked":"")+'></label>';
+  h += '<label class="switchrow"><span>答題震動<span class="sub">手機支援時才有感</span></span><input type="checkbox" data-set="vib" '+(SET.vib?"checked":"")+'></label>';
+  h += '<button class="btn ghost" data-act="testSfx">🔔 測試答題音效</button>';
+  h += '<button class="btn ghost" data-act="testSpeak">🔊 測試英文發音（唸 employ）</button>';
+  h += '<div class="diag">發音診斷：偵測到語音引擎 '+(vs?("共 "+vs+" 個聲音"):"0 個")+'<br>'+
+       '目前選用：'+(voice?esc(voice.name+"（"+voice.lang+"）"):"尚未選到，會用系統預設")+'<br>'+
+       '若手機按了都沒聲音：iPhone 請確認側邊的靜音撥鍵在「響鈴」位置（靜音時語音朗讀會整句沒聲音），並確認媒體音量已開。</div>';
+
+  h += '<div class="card" style="margin-top:12px"><div style="font-size:15px;font-weight:700;margin-bottom:8px">已學會的單字</div>'+
        (learned? '<div style="font-size:14px;color:var(--dim);line-height:1.9">'+S.learned.slice().sort(function(a,b){return a-b;}).map(function(i){return esc(WORDS[i].w);}).join("、")+'</div>'
                : '<div class="empty" style="padding:10px">還沒有任何紀錄。</div>')+'</div>';
   h += '<button class="btn ghost" data-act="resetWrong">清空錯題本</button>';
@@ -507,12 +701,13 @@ function viewList(){
 
 /* ================= 事件綁定 ================= */
 function bind(){
-  // 回首頁
   document.querySelectorAll("[data-go]").forEach(function(el){
     el.addEventListener("click", function(){
+      unlockMedia();
       const to = el.getAttribute("data-go");
       const mode = el.getAttribute("data-mode");
       const pool = el.getAttribute("data-pool");
+      sfx("tap");
       if(to==="card"){ cardState.order=[]; cardState.pos=0; cardState.flipped=false; }
       if(to==="quiz"){
         let p = null;
@@ -527,58 +722,68 @@ function bind(){
       go(to, {mode:mode, pool:pool});
     });
   });
-  // 學習卡
   const cbox = document.getElementById("cbox");
-  if(cbox) cbox.addEventListener("click", function(){ cardState.flipped = !cardState.flipped; render(); });
-  // 發音
-  document.querySelectorAll("[data-speak]").forEach(function(el){
-    el.addEventListener("click", function(ev){ ev.stopPropagation(); speak(el.getAttribute("data-speak")); });
+  if(cbox) cbox.addEventListener("click", function(){
+    cardState.flipped = !cardState.flipped;
+    if(cardState.flipped){ sfx("tap"); const i=cardState.order[cardState.pos]; if(i!=null) speak(WORDS[i].w); }
+    render();
   });
-  // 一般動作
+  document.querySelectorAll("[data-speak]").forEach(function(el){
+    el.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      unlockMedia();
+      speak(el.getAttribute("data-speak"));
+    });
+  });
   document.querySelectorAll("[data-act]").forEach(function(el){
     el.addEventListener("click", function(ev){
       ev.stopPropagation();
       const a = el.getAttribute("data-act");
       if(a==="known") cardKnown();
       else if(a==="unknown") cardUnknown();
-      else if(a==="flip"){ cardState.flipped = !cardState.flipped; render(); }
+      else if(a==="flip"){
+        cardState.flipped = !cardState.flipped;
+        if(cardState.flipped){ const i=cardState.order[cardState.pos]; if(i!=null) speak(WORDS[i].w); }
+        render();
+      }
       else if(a==="checkSpell") checkSpell();
       else if(a==="nextSpell") nextSpell();
-      else if(a==="skip"){ const i=spellState.qs[spellState.pos]; if(i!=null) speak(WORDS[i].w); }
+      else if(a==="listen"){ const i=spellState.qs[spellState.pos]; if(i!=null) speak(WORDS[i].w); }
       else if(a==="again"){
         if(lastRun.type==="spell"){ buildSpell(lastRun.pool); go("spell"); }
         else { buildQuiz(lastRun.mode, lastRun.pool); go("quiz"); }
       }
+      else if(a==="testSfx"){ unlockMedia(); SET.sfx=true; sfx("right",3); setTimeout(function(){ sfx("wrong"); }, 700); }
+      else if(a==="testSpeak"){ unlockMedia(); speak("employ"); }
       else if(a==="wrongCards"){
         cardState.order = shuffle(S.wrong.slice());
         cardState.pos = 0; cardState.flipped=false;
         go("card");
       }
       else if(a==="delWrong"){ delWrong(parseInt(el.getAttribute("data-i"),10)); save(); render(); }
-      else if(a==="resetWrong"){
-        if(confirm("確定清空錯題本？")){ S.wrong=[]; save(); render(); }
-      }
+      else if(a==="resetWrong"){ if(confirm("確定清空錯題本？")){ S.wrong=[]; save(); render(); } }
       else if(a==="resetAll"){
         if(confirm("確定全部重置？學會紀錄與錯題都會歸零。")){
-          S = JSON.parse(JSON.stringify(DEF)); save(); cardState.order=[]; quizState.qs=[]; spellState.qs=[];
+          const keep = S.set;
+          S = JSON.parse(JSON.stringify(DEF)); S.set = keep; save();
+          cardState.order=[]; quizState.qs=[]; spellState.qs=[]; spokenToken=null;
           go("home");
         }
       }
     });
   });
-  // 選擇題選項
   document.querySelectorAll("[data-opt]").forEach(function(el){
-    el.addEventListener("click", function(){ answer(parseInt(el.getAttribute("data-opt"),10)); });
+    el.addEventListener("click", function(){ unlockMedia(); answer(parseInt(el.getAttribute("data-opt"),10)); });
   });
-  // 自動發音開關
-  const auto = document.getElementById("autoSpeak");
-  if(auto) auto.addEventListener("change", function(){ cardState.auto = auto.checked; });
-  // 拼字輸入：Enter 送出
+  document.querySelectorAll("[data-set]").forEach(function(el){
+    el.addEventListener("change", function(){
+      unlockMedia();
+      SET[el.getAttribute("data-set")] = el.checked;
+      if(el.getAttribute("data-set")==="sfx" && el.checked) sfx("right");
+    });
+  });
   const sp = document.getElementById("spellIn");
-  if(sp){
-    if(spellState.checked){ setTimeout(function(){ const b=document.querySelector('[data-act="nextSpell"]'); if(b) b.focus(); },10); }
-    sp.addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); checkSpell(); } });
-  }
+  if(sp) sp.addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); checkSpell(); } });
 }
 
 /* 桌面測試友善：鍵盤操作 */
