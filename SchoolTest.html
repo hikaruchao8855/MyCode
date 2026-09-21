@@ -115,72 +115,110 @@
   .foot{text-align:center;color:#5d6484;font-size:11px;margin-top:14px;line-height:1.7}
   .diag{font-size:12px;color:var(--dim);line-height:1.8;background:#0b0d15;border:1px solid var(--line);
     border-radius:12px;padding:12px;word-break:break-word}
+  /* 範圍選擇 */
+  .chips{display:flex;gap:8px}
+  .chip{flex:1;min-height:62px;border-radius:14px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);
+    font-size:17px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px}
+  .chip .n{font-size:11px;color:var(--dim);font-weight:400}
+  .chip.on{background:linear-gradient(180deg,#4460c8,#3a51ae);border-color:#5a76dd}
+  .chip.on .n{color:#dfe6ff}
+  .chip:active{transform:scale(.97)}
+  .grp{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;font-weight:800;
+    color:var(--accent);margin:16px 2px 8px}
+  .grp span{font-size:11px;color:var(--dim);font-weight:400}
 </style>
 </head>
 <body>
 <div id="app"></div>
 
 <script>
-/* ================= 單字資料（釋義沿用主人原稿，補充另列 note） ================= */
+/* ================= 單字資料：來源 單字.txt（L1／L2／L3，釋義與標點照原稿） ================= */
 const WORDS = [
-  {w:"employ", z:"僱用"},
-  {w:"corporation", z:"公司"},
-  {w:"suffer", z:"受苦"},
-  {w:"terminal", z:"末期的"},
-  {w:"illness", z:"疾病"},
-  {w:"tremendously", z:"相當大的", note:"副詞，用來修飾動詞或形容詞：非常地"},
-  {w:"laughter", z:"笑", note:"也可指「笑聲」"},
-  {w:"frighten", z:"使驚嚇"},
-  {w:"contact", z:"接觸"},
-  {w:"germ", z:"細菌"},
-  {w:"warmth", z:"熱情", note:"也指溫度上的「溫暖」"},
-  {w:"frail", z:"虛弱的"},
-  {w:"prompt", z:"促使"},
-  {w:"confine", z:"使離不開"},
-  {w:"sparkle", z:"神采"},
-  {w:"hug", z:"擁抱"},
-  {w:"drowsy", z:"昏昏欲睡的"},
-  {w:"stretch", z:"伸出"},
-  {w:"refuse", z:"拒絕"},
-  {w:"hesitate", z:"猶豫"},
-  {w:"pass on...to...", z:"轉交"},
-  {w:"cheer up", z:"高興", note:"也常作「振作起來」"},
-  {w:"turn down", z:"拒絕"},
-  {w:"be about to", z:"即將"},
-  {w:"after all", z:"畢竟"},
-  {w:"pass away", z:"過世"},
-  {w:"make a difference", z:"有所影響"},
-  {w:"innovative", z:"創新的"},
-  {w:"promise", z:"可望；承諾"},
-  {w:"material", z:"材料"},
-  {w:"mention", z:"提到"},
-  {w:"structure", z:"結構"},
-  {w:"capable", z:"有能力的"},
-  {w:"collaborate", z:"合作"},
-  {w:"architect", z:"建築師"},
-  {w:"graduate", z:"畢業生"},
-  {w:"construct", z:"建造"},
-  {w:"slightly", z:"稍微"},
-  {w:"rank", z:"排名"},
-  {w:"unique", z:"獨特的"},
-  {w:"adjust", z:"調整"},
-  {w:"rely", z:"信任", note:"rely on＝依賴、依靠"},
-  {w:"feedback", z:"回饋"},
-  {w:"element", z:"要素"},
-  {w:"stability", z:"穩定"},
-  {w:"route", z:"途徑"},
-  {w:"explore", z:"探索"},
-  {w:"trial and error", z:"反覆試驗"},
-  {w:"in charge", z:"負責"},
-  {w:"figure out", z:"想出", note:"也常指「弄懂、理解」"},
-  {w:"roll up one's sleeves", z:"挽起袖子", note:"引申為「動手去做」"},
-  {w:"get down to", z:"開始做某事"}
+  {w:"employ", z:"僱用", lv:1},
+  {w:"corporation", z:"（大）公司；集團公司", lv:1},
+  {w:"suffer", z:"受苦", lv:1},
+  {w:"terminal", z:"末期的", lv:1},
+  {w:"illness", z:"疾病；生病", lv:1},
+  {w:"tremendously", z:"相當大地", lv:1},
+  {w:"laughter", z:"笑；笑聲", lv:1},
+  {w:"frighten", z:"使驚嚇", lv:1},
+  {w:"contact", z:"接觸", lv:1},
+  {w:"germ", z:"細菌", lv:1},
+  {w:"warmth", z:"熱情", lv:1},
+  {w:"frail", z:"虛弱的", lv:1},
+  {w:"prompt", z:"促使", lv:1},
+  {w:"confine", z:"使離不開（床、輪椅等）", lv:1},
+  {w:"sparkle", z:"神采；閃耀", lv:1},
+  {w:"hug", z:"擁抱", lv:1},
+  {w:"drowsy", z:"昏昏欲睡的", lv:1},
+  {w:"stretch", z:"伸出（手臂或腿）", lv:1},
+  {w:"refuse", z:"拒絕", lv:1},
+  {w:"hesitate", z:"猶豫", lv:1},
+  {w:"pass on…to…", z:"將…傳給；轉交給…", lv:1},
+  {w:"cheer…up", z:"使…振奮、高興", lv:1},
+  {w:"turn down", z:"拒絕…", lv:1},
+  {w:"be about to", z:"即將；正要", lv:1},
+  {w:"after all", z:"畢竟", lv:1},
+  {w:"pass away", z:"過世", lv:1},
+  {w:"make a difference", z:"有所影響", lv:1},
+  {w:"innovative", z:"創新的", lv:2},
+  {w:"promise", z:"可望…；預示…", lv:2},
+  {w:"material", z:"（活動所需的）材料", lv:2},
+  {w:"mention", z:"提到", lv:2},
+  {w:"structure", z:"結構體；建築物", lv:2},
+  {w:"capable", z:"有能力的；能夠…的", lv:2},
+  {w:"collaborate", z:"合作", lv:2},
+  {w:"architect", z:"建築師", lv:2},
+  {w:"graduate", z:"（大學）畢業生", lv:2},
+  {w:"construct", z:"建造", lv:2},
+  {w:"slightly", z:"稍微", lv:2},
+  {w:"rank", z:"排序為…", lv:2},
+  {w:"unique", z:"獨特的", lv:2},
+  {w:"adjust", z:"調整", lv:2},
+  {w:"rely", z:"依賴；信任", lv:2},
+  {w:"feedback", z:"回饋意見", lv:2},
+  {w:"element", z:"要素", lv:2},
+  {w:"stability", z:"穩定", lv:2},
+  {w:"route", z:"途徑；路線", lv:2},
+  {w:"explore", z:"探索", lv:2},
+  {w:"trial and error", z:"反覆試驗", lv:2},
+  {w:"in charge", z:"主控；負責", lv:2},
+  {w:"figure out", z:"想出", lv:2},
+  {w:"roll up one’s sleeves", z:"挽起袖子（表示開始行動）", lv:2},
+  {w:"get down to…", z:"開始做某事", lv:2},
+  {w:"humankind", z:"人類", lv:3},
+  {w:"universe", z:"宇宙", lv:3},
+  {w:"fur", z:"（動物的）毛", lv:3},
+  {w:"enable", z:"使…能夠…", lv:3},
+  {w:"upright", z:"直立地", lv:3},
+  {w:"generous", z:"慷慨的", lv:3},
+  {w:"conflict", z:"衝突", lv:3},
+  {w:"distribution", z:"分配；分布", lv:3},
+  {w:"benefit", z:"益處", lv:3},
+  {w:"slaughter", z:"宰殺", lv:3},
+  {w:"underneath", z:"在…下", lv:3},
+  {w:"freeze", z:"受凍", lv:3},
+  {w:"victim", z:"受害者；罹病者；罹難者", lv:3},
+  {w:"miserable", z:"悲慘的", lv:3},
+  {w:"hollow", z:"中空的", lv:3},
+  {w:"furious", z:"暴怒的", lv:3},
+  {w:"theft", z:"偷竊；偷竊罪", lv:3},
+  {w:"punish", z:"懲罰", lv:3},
+  {w:"banish", z:"放逐", lv:3},
+  {w:"torture", z:"折磨", lv:3},
+  {w:"civilization", z:"文明", lv:3},
+  {w:"run out(of…)", z:"用完", lv:3},
+  {w:"make up for", z:"彌補", lv:3},
+  {w:"as a result", z:"因此", lv:3},
+  {w:"fell victim to", z:"成為…的受害者；受…所害", lv:3},
+  {w:"feed on", z:"靠…為食", lv:3},
+  {w:"set a stage for", z:"為…作好準備", lv:3}
 ];
 const TOTAL = WORDS.length;
-const LSKEY = "vocab_high_en_v1";
-
+const LEVELS = [1,2,3];
+const LSKEY = "vocab_high_en_v2";
 /* ================= 設定與進度 ================= */
-const DEFSET = {sfx:true, auto:true, vib:true};
+const DEFSET = {sfx:true, auto:true, vib:true, range:[1,2,3]};
 const DEF = {learned:[], wrong:[], q:0, right:0, last:0, set:{}};
 let S = load();
 
@@ -193,11 +231,11 @@ function load(){
         learned: Array.isArray(o.learned)?o.learned:[],
         wrong:   Array.isArray(o.wrong)?o.wrong:[],
         q: o.q||0, right: o.right||0, last: o.last||0,
-        set: Object.assign({}, DEFSET, o.set||{})
+        set: fixSet(o.set)
       };
     }
   }catch(e){}
-  const d = JSON.parse(JSON.stringify(DEF)); d.set = Object.assign({}, DEFSET);
+  const d = JSON.parse(JSON.stringify(DEF)); d.set = fixSet(null);
   return d;
 }
 function save(){
@@ -212,6 +250,56 @@ const SET = new Proxy({}, {
 function esc(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function range(a,b){ const r=[]; for(let i=a;i<b;i++) r.push(i); return r; }
+function lvName(lv){ return "L"+lv; }
+function lvIdx(lv){ const out=[]; for(let k=0;k<WORDS.length;k++) if(WORDS[k].lv===lv) out.push(k); return out; }
+function lvCount(lv){ return lvIdx(lv).length; }
+/* 目前勾選的範圍（回傳單字索引陣列） */
+function scopeIdx(){ const out=[]; for(let k=0;k<WORDS.length;k++) if(S.set.range.indexOf(WORDS[k].lv)>=0) out.push(k); return out; }
+function scopeLabel(){
+  const on=[]; for(let k=0;k<LEVELS.length;k++) if(S.set.range.indexOf(LEVELS[k])>=0) on.push(lvName(LEVELS[k]));
+  return on.length===LEVELS.length ? "全部 L1～L3" : on.join("＋");
+}
+/* 讀回設定時把範圍修回合法值（至少留一個 L） */
+function fixSet(o){
+  const s = Object.assign({}, DEFSET, o||{});
+  const r = [];
+  for(let k=0;k<LEVELS.length;k++) if(Array.isArray(s.range) && s.range.indexOf(LEVELS[k])>=0) r.push(LEVELS[k]);
+  s.range = r.length?r:LEVELS.slice();
+  s.sfx = !!s.sfx; s.auto = !!s.auto; s.vib = !!s.vib;
+  return s;
+}
+/* 拼字比對用：彎引號、全形括號、省略號一律視為同一種打法 */
+function normSpell(s){
+  return String(s||"").toLowerCase()
+    .replace(/[\u2018\u2019\u02bc\u2032]/g,"'")
+    .replace(/[\u201c\u201d]/g,"\"")
+    .replace(/（/g,"(").replace(/）/g,")")
+    .replace(/\u2026/g,"...")
+    .replace(/\u00a0/g," ")
+    .replace(/\s+/g," ")
+    .replace(/\s*\.\.\.\s*/g,"...")   /* 「pass on ... to ...」也算對 */
+    .trim();
+}
+/* 出題池：range(依目前勾選範圍)／all(全部 L1～L3)／wrong(錯題本) */
+function poolOf(pool){
+  if(pool === "all")   return range(0, TOTAL);
+  if(pool === "wrong") return S.wrong.slice();
+  return null;
+}
+function tagOf(pool){ return pool === "all" ? "all" : (pool === "wrong" ? "wrong" : ""); }
+/* 出題索引：優先用傳進來的池，沒有就依標籤決定，最後才用目前勾選範圍 */
+function poolIdx(pool, tag){
+  if(pool && pool.length) return pool.slice();
+  if(tag === "all")   return range(0, TOTAL);
+  if(tag === "wrong") return S.wrong.slice();
+  return scopeIdx();
+}
+function poolName(tag){
+  if(tag === "all")   return "全部範圍 L1～L3";
+  if(tag === "wrong") return "錯題本";
+  return "範圍 " + scopeLabel();
+}
+
 function isLearned(i){ return S.learned.indexOf(i)>=0; }
 function isWrong(i){ return S.wrong.indexOf(i)>=0; }
 function markLearned(i){ if(!isLearned(i)) S.learned.push(i); }
@@ -357,6 +445,7 @@ function render(){
     case "wrong":  html = viewWrong(); break;
     case "result": html = viewResult(); break;
     case "browse": html = viewBrowse(); break;
+    case "review": html = viewReview(); break;
   }
   app.innerHTML = html;
   bind();
@@ -380,39 +469,78 @@ function afterRender(){
 
 /* ---------- 首頁 ---------- */
 function viewHome(){
-  const learned = S.learned.length;
-  const pct = Math.round(learned*100/TOTAL);
+  const sc = scopeIdx();
+  const learned = sc.filter(isLearned).length;
+  const pct = sc.length?Math.round(learned*100/sc.length):0;
   const wn = S.wrong.length;
   const acc = S.q ? Math.round(S.right*100/S.q) : 0;
-  let h = header("英文單字隨身背", "高中單字 " + TOTAL + " 字");
-  h += '<div class="card"><div class="rowline"><span>已學會</span><span>'+learned+' / '+TOTAL+'（'+pct+'%）</span></div>'+
+  let h = header("英文單字隨身背", "高中單字 " + TOTAL + " 字・" + scopeLabel());
+  h += '<div class="card"><div class="rowline"><span>已學會（目前範圍）</span><span>'+learned+' / '+sc.length+'（'+pct+'%）</span></div>'+
        '<div class="bar"><i style="width:'+pct+'%"></i></div>'+
        '<div class="rowline"><span>答題數 '+S.q+'</span><span>答對率 '+acc+'%</span></div></div>';
 
+  h += rangePicker(sc.length);
+
+  h += reviewEntry();
   h += '<button class="btn primary" data-go="card"><span class="em">📖</span>學習卡<span class="hint">一張一張翻，自動唸給你聽</span></button>';
   h += '<button class="btn" data-go="quiz" data-mode="en2zh"><span class="em">🔵</span>看英文選中文<span class="hint">10 題四選一，出題先唸一次</span></button>';
   h += '<button class="btn" data-go="quiz" data-mode="zh2en"><span class="em">🟠</span>看中文選英文<span class="hint">10 題四選一，答完唸正解</span></button>';
   h += '<button class="btn" data-go="spell"><span class="em">⌨️</span>拼字測驗<span class="hint">看中文，把英文拼出來</span></button>';
   h += '<button class="btn '+(wn?'bad':'ghost')+'" data-go="wrong"><span class="em">🔁</span>錯題複習'+
        (wn?'<span class="hint">目前 '+wn+' 字，優先練這些</span>':'<span class="hint">還沒有錯題，很棒</span>')+'</button>';
-  h += '<button class="btn ghost" data-go="browse"><span class="em">📋</span>單字一覽<span class="hint">全部 '+TOTAL+' 字＋發音</span></button>';
+  h += '<button class="btn ghost" data-go="browse"><span class="em">📋</span>單字一覽<span class="hint">目前範圍 '+sc.length+' 字＋發音</span></button>';
   h += '<button class="btn ghost" data-go="list"><span class="em">⚙️</span>進度與設定<span class="hint">音效、發音、重置紀錄</span></button>';
   h += '<div class="foot">進度存在這支手機裡，關掉網頁也會保留。<br>手機請用 Chrome／Safari 開啟。</div>';
   return h;
 }
+/* 複習全部範圍：不管勾了什麼，一律練全部 L1～L3（會避開已學會的） */
+function reviewEntry(){
+  const learned = S.learned.length;
+  const left = TOTAL - learned;
+  let h = '<button class="btn good" data-go="review"><span class="em">🗂️</span>複習全部範圍'+
+          '<span class="hint">L1～L3 全部 '+TOTAL+' 字一起練（不管上面勾了什麼）</span></button>';
+  return h;
+}
+function viewReview(){
+  const learned = S.learned.length;
+  let h = header("複習全部範圍", "全部 "+TOTAL+" 字　已學會 "+learned+"／未學會 "+(TOTAL-learned), "home");
+  h += '<div class="card"><div class="rowline" style="margin:0 2px 8px"><span>練習方式</span><span>不看上面的範圍勾選</span></div>'+
+       '<div class="tipline" style="margin:0">每一種都只出 10 題，從全部 '+TOTAL+' 字抽</div></div>';
+  h += '<button class="btn primary" data-go="card" data-pool="all"><span class="em">📖</span>學習卡（全部）<span class="hint">從還沒學會的字開始翻</span></button>';
+  h += '<button class="btn" data-go="quiz" data-mode="en2zh" data-pool="all"><span class="em">🔵</span>看英文選中文（全部）<span class="hint">10 題四選一，出題先唸一次</span></button>';
+  h += '<button class="btn" data-go="quiz" data-mode="zh2en" data-pool="all"><span class="em">🟠</span>看中文選英文（全部）<span class="hint">10 題四選一，答完唸正解</span></button>';
+  h += '<button class="btn" data-go="spell" data-pool="all"><span class="em">⌨️</span>拼字測驗（全部）<span class="hint">看中文，把英文拼出來</span></button>';
+  h += '<button class="btn ghost" data-go="browse"><span class="em">📋</span>單字一覽<span class="hint">目前範圍 '+scopeIdx().length+' 字＋發音</span></button>';
+  return h;
+}
+
+/* 範圍選擇：L1／L2／L3 可多選，存進設定 */
+function rangePicker(picked){
+  let h = '<div class="card"><div class="rowline" style="margin:0 2px 10px"><span>測驗範圍</span><span>已選 '+picked+' 字</span></div><div class="chips">';
+  for(let k=0;k<LEVELS.length;k++){
+    const lv = LEVELS[k];
+    const on = S.set.range.indexOf(lv)>=0;
+    h += '<button class="chip'+(on?' on':'')+'" data-lv="'+lv+'">'+lvName(lv)+'<span class="n">'+lvCount(lv)+' 字</span></button>';
+  }
+  h += '</div><div class="tipline" style="margin-top:10px">可多選，沒有勾選的不會出題</div></div>';
+  return h;
+}
 
 /* ---------- 學習卡 ---------- */
-let cardState = {order:[], pos:0, flipped:false};
+let cardState = {order:[], pos:0, flipped:false, base:null, tag:""};
 
 function viewCard(){
   if(!cardState.order.length){
-    const fresh = range(0,TOTAL).filter(i=>!isLearned(i));
-    cardState.order = (fresh.length?shuffle(fresh):shuffle(range(0,TOTAL)));
+    const base = cardState.base || scopeIdx();
+    const fresh = base.filter(i=>!isLearned(i));
+    cardState.order = (fresh.length?shuffle(fresh):shuffle(base));
     cardState.pos = 0; cardState.flipped = false;
   }
+  const sc = cardState.base || scopeIdx();
   const i = cardState.order[cardState.pos];
   const w = WORDS[i];
-  let h = header("學習卡", (cardState.pos+1)+" / "+cardState.order.length+"　已學會 "+S.learned.length+"/"+TOTAL, "home");
+  const scopeTag = cardState.tag === "all" ? "全部 L1～L3" : (cardState.tag === "wrong" ? "錯題本" : scopeLabel());
+  let h = header("學習卡", (cardState.pos+1)+" / "+cardState.order.length+"　已學會 "+sc.filter(isLearned).length+"/"+sc.length+"（"+scopeTag+"）", "home");
   h += '<div class="bar"><i style="width:'+Math.round((cardState.pos)*100/cardState.order.length)+'%"></i></div>';
   h += '<div class="cardbox'+(cardState.flipped?" flipped":"")+'" id="cbox">'+
          '<div class="flipper">'+
@@ -450,22 +578,28 @@ function cardUnknown(){
 }
 
 /* ---------- 選擇題 ---------- */
-let quizState = {mode:"en2zh", qs:[], pos:0, right:0, picked:null, pool:null, opts:null, streak:0, best:0};
+let quizState = {mode:"en2zh", qs:[], pos:0, right:0, picked:null, pool:null, opts:null, streak:0, best:0, ptag:""};
 let lastRun = {type:"quiz", mode:"en2zh", pool:null};
 
-function buildQuiz(mode, pool){
-  const idx = pool && pool.length ? pool.slice() : range(0,TOTAL);
+function buildQuiz(mode, pool, tag){
+  const idx = poolIdx(pool, tag);
   shuffle(idx);
   const n = Math.min(10, idx.length);
-  const qs = [];
-  for(let k=0;k<n;k++) qs.push(idx[k]);
-  quizState = {mode:mode, qs:qs, pos:0, right:0, picked:null, pool:pool||null, opts:null, streak:0, best:0};
-  lastRun = {type:"quiz", mode:mode, pool:pool||null};
+  quizState = {mode:mode, qs:idx.slice(0,n), pos:0, right:0, picked:null, pool:idx, opts:null, streak:0, best:0, ptag:tag||""};
+  lastRun = {type:"quiz", mode:mode, pool:idx, tag:tag||""};
 }
-function makeOpts(ci){
+function makeOpts(ci, pool){
+  const base = (pool && pool.length) ? pool : scopeIdx();
   const opts = [ci];
   let guard = 0;
-  while(opts.length<4 && guard++<500){
+  while(opts.length<4 && guard++<600){
+    const r = base[Math.floor(Math.random()*base.length)];
+    if(r===undefined || opts.indexOf(r)>=0) continue;
+    if(WORDS[r].z === WORDS[ci].z || WORDS[r].w === WORDS[ci].w) continue;
+    opts.push(r);
+  }
+  guard = 0;
+  while(opts.length<4 && guard++<600){        /* 範圍內字太少時，用全部單字補滿四個選項 */
     const r = Math.floor(Math.random()*TOTAL);
     if(opts.indexOf(r)>=0) continue;
     if(WORDS[r].z === WORDS[ci].z || WORDS[r].w === WORDS[ci].w) continue;
@@ -474,11 +608,11 @@ function makeOpts(ci){
   return shuffle(opts);
 }
 function viewQuiz(){
-  if(!quizState.qs.length) buildQuiz(view.data.mode||"en2zh", view.data.pool||null);
+  if(!quizState.qs.length) buildQuiz(view.data.mode||"en2zh", null, "");
   const i = quizState.qs[quizState.pos];
   const w = WORDS[i];
   const en2zh = quizState.mode==="en2zh";
-  const opts = quizState.opts || (quizState.opts = makeOpts(i));
+  const opts = quizState.opts || (quizState.opts = makeOpts(i, quizState.pool));
   const answered = quizState.picked !== null;
   const wasRight = answered && quizState.picked === i;
 
@@ -487,7 +621,7 @@ function viewQuiz(){
     badge = '<span class="streak'+(quizState.streak>=5?" hot":"")+'">連續答對 '+quizState.streak+'</span>';
   }
   let h = header("看英文選中文".replace("看英文選中文", en2zh?"看英文選中文":"看中文選英文"),
-                 "第 "+(quizState.pos+1)+" / "+quizState.qs.length+" 題　答對 "+quizState.right, "home", badge);
+                 "第 "+(quizState.pos+1)+" / "+quizState.qs.length+" 題　答對 "+quizState.right+"　"+poolName(quizState.ptag), "home", badge);
   h += '<div class="bar"><i style="width:'+Math.round(quizState.pos*100/quizState.qs.length)+'%"></i></div>';
   h += '<div style="height:12px"></div>';
   h += '<div class="qbox"><div class="qtag">'+(en2zh?"這個字是什麼意思？":"這個意思的英文是？")+'</div>'+
@@ -541,37 +675,36 @@ function answer(oi){
 }
 
 /* ---------- 拼字 ---------- */
-let spellState = {qs:[], pos:0, right:0, checked:false, pool:null, typed:"", ok:null, streak:0, best:0};
+let spellState = {qs:[], pos:0, right:0, checked:false, pool:null, typed:"", ok:null, streak:0, best:0, ptag:""};
 
-function buildSpell(pool){
-  const idx = pool && pool.length ? pool.slice() : range(0,TOTAL);
+function buildSpell(pool, tag){
+  const idx = poolIdx(pool, tag);
   shuffle(idx);
   const n = Math.min(10, idx.length);
-  spellState = {qs: idx.slice(0,n), pos:0, right:0, checked:false, pool:pool||null, typed:"", ok:null, streak:0, best:0};
-  lastRun = {type:"spell", mode:"spell", pool:pool||null};
+  spellState = {qs: idx.slice(0,n), pos:0, right:0, checked:false, pool:idx, typed:"", ok:null, streak:0, best:0, ptag:tag||""};
+  lastRun = {type:"spell", mode:"spell", pool:idx, tag:tag||""};
 }
 function hintOf(str){
   let out = "";
   for(let k=0;k<str.length;k++){
     const c = str[k];
-    if(c===" ") out += " ";
-    else if(c===".") out += ".";
-    else if(c==="'") out += "'";
-    else out += (k===0 ? c : "_");
+    /* 英文字母才要自己想，空白與標點（含… ’）照原樣露出 */
+    if(/[A-Za-z]/.test(c)) out += (k===0 ? c : "_");
+    else out += c;
   }
   return out;
 }
 function viewSpell(){
-  if(!spellState.qs.length) buildSpell(view.data.pool||null);
+  if(!spellState.qs.length) buildSpell(null, "");
   const i = spellState.qs[spellState.pos];
   const w = WORDS[i];
   let badge = "";
   if(spellState.streak>=2) badge = '<span class="streak'+(spellState.streak>=5?" hot":"")+'">連續答對 '+spellState.streak+'</span>';
-  let h = header("拼字測驗", "第 "+(spellState.pos+1)+" / "+spellState.qs.length+" 題　答對 "+spellState.right, "home", badge);
+  let h = header("拼字測驗", "第 "+(spellState.pos+1)+" / "+spellState.qs.length+" 題　答對 "+spellState.right+"　"+poolName(spellState.ptag), "home", badge);
   h += '<div class="bar"><i style="width:'+Math.round(spellState.pos*100/spellState.qs.length)+'%"></i></div>';
   h += '<div style="height:12px"></div>';
   h += '<div class="qbox"><div class="qtag">請拼出這個意思的英文</div><div class="qzh">'+esc(w.z)+'</div>'+
-       '<div class="hintline">'+esc(hintOf(w.w))+'（'+w.w.length+' 字母）</div></div>';
+       '<div class="hintline">'+esc(hintOf(w.w))+'（共 '+w.w.length+' 字元）</div></div>';
   h += '<input type="text" id="spellIn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="在這裡打英文" value="'+esc(spellState.typed||"")+'">';
   if(spellState.checked){
     h += '<div class="fbline '+(spellState.ok?"ok":"no")+'">'+(spellState.ok?"✅ 拼對了！":'❌ 拼錯了')+'</div>'+
@@ -592,8 +725,7 @@ function checkSpell(){
   const i = spellState.qs[spellState.pos];
   const w = WORDS[i];
   const el = document.getElementById("spellIn");
-  const val = (el?el.value:"").trim().toLowerCase().replace(/\s+/g," ");
-  const ok = (val === w.w.toLowerCase());
+  const ok = (normSpell(el?el.value:"") === normSpell(w.w));
   spellState.checked = true; spellState.ok = ok; spellState.typed = (el?el.value:"");
   S.q++;
   if(ok){ S.right++; spellState.right++; spellState.streak++; if(spellState.streak>spellState.best) spellState.best=spellState.streak; markLearned(i); delWrong(i); }
@@ -658,14 +790,22 @@ function viewWrong(){
 
 /* ---------- 單字一覽 ---------- */
 function viewBrowse(){
-  let h = header("單字一覽", "點單字可聽發音", "home");
-  h += '<div class="rowline"><span>✅ 綠點＝已學會</span><span>'+S.learned.length+' / '+TOTAL+'</span></div>';
+  const sc = scopeIdx();
+  let h = header("單字一覽", "點單字可聽發音・"+scopeLabel(), "home");
+  h += '<div class="rowline"><span>✅ 綠點＝已學會</span><span>'+sc.filter(isLearned).length+' / '+sc.length+'</span></div>';
   h += '<div style="height:10px"></div>';
-  WORDS.forEach(function(w,i){
-    h += '<div class="item"><span class="dot'+(isLearned(i)?" on":"")+'"></span>'+
-         '<div><div class="w">'+esc(w.w)+'</div><div class="z">'+esc(w.z)+'</div></div>'+
-         '<div class="acts"><button class="mini" data-speak="'+esc(w.w)+'">🔊</button></div></div>';
-  });
+  for(let k=0;k<LEVELS.length;k++){
+    const lv = LEVELS[k];
+    if(S.set.range.indexOf(lv)<0) continue;
+    const ids = lvIdx(lv);
+    h += '<div class="grp">'+lvName(lv)+'<span>'+ids.length+' 字</span></div>';
+    ids.forEach(function(i){
+      const w = WORDS[i];
+      h += '<div class="item"><span class="dot'+(isLearned(i)?" on":"")+'"></span>'+
+           '<div><div class="w">'+esc(w.w)+'</div><div class="z">'+esc(w.z)+'</div></div>'+
+           '<div class="acts"><button class="mini" data-speak="'+esc(w.w)+'">🔊</button></div></div>';
+    });
+  }
   return h;
 }
 
@@ -679,6 +819,7 @@ function viewList(){
        '<div><b>'+S.wrong.length+'</b><span>錯題</span></div>'+
        '<div><b>'+S.q+'</b><span>答題數</span></div>'+
        '<div><b>'+acc+'%</b><span>答對率</span></div></div>';
+  h += '<div class="tipline" style="margin:-4px 0 12px">這裡是全部 '+TOTAL+' 字的累計；首頁進度條只算目前勾選的範圍</div>';
 
   h += '<div class="card" style="padding:12px 14px"><div style="font-size:15px;font-weight:700;margin-bottom:6px">聲音設定</div></div>';
   h += '<label class="switchrow"><span>答題音效<span class="sub">答對叮咚、答錯低沉音</span></span><input type="checkbox" data-set="sfx" '+(SET.sfx?"checked":"")+'></label>';
@@ -708,18 +849,21 @@ function bind(){
       const mode = el.getAttribute("data-mode");
       const pool = el.getAttribute("data-pool");
       sfx("tap");
-      if(to==="card"){ cardState.order=[]; cardState.pos=0; cardState.flipped=false; }
+      const tag = tagOf(pool);
+      if(to==="card"){
+        cardState.order=[]; cardState.pos=0; cardState.flipped=false;
+        cardState.base = poolOf(pool); cardState.tag = tag;
+      }
       if(to==="quiz"){
-        let p = null;
-        if(pool==="wrong") p = S.wrong.slice();
-        buildQuiz(mode||"en2zh", p);
+        buildQuiz(mode||"en2zh", poolOf(pool), tag);
       }
       if(to==="spell"){
-        let p = null;
-        if(pool==="wrong") p = S.wrong.slice();
-        buildSpell(p);
+        buildSpell(poolOf(pool), tag);
       }
-      go(to, {mode:mode, pool:pool});
+      if(to==="browse"){
+        cardState.base = null; cardState.tag = "";
+      }
+      go(to, {mode:mode, pool:pool, tag:tag});
     });
   });
   const cbox = document.getElementById("cbox");
@@ -750,14 +894,15 @@ function bind(){
       else if(a==="nextSpell") nextSpell();
       else if(a==="listen"){ const i=spellState.qs[spellState.pos]; if(i!=null) speak(WORDS[i].w); }
       else if(a==="again"){
-        if(lastRun.type==="spell"){ buildSpell(lastRun.pool); go("spell"); }
-        else { buildQuiz(lastRun.mode, lastRun.pool); go("quiz"); }
+        if(lastRun.type==="spell"){ buildSpell(lastRun.pool, lastRun.tag); go("spell", {tag:lastRun.tag}); }
+        else { buildQuiz(lastRun.mode, lastRun.pool, lastRun.tag); go("quiz", {tag:lastRun.tag}); }
       }
       else if(a==="testSfx"){ unlockMedia(); SET.sfx=true; sfx("right",3); setTimeout(function(){ sfx("wrong"); }, 700); }
       else if(a==="testSpeak"){ unlockMedia(); speak("employ"); }
       else if(a==="wrongCards"){
         cardState.order = shuffle(S.wrong.slice());
         cardState.pos = 0; cardState.flipped=false;
+        cardState.base = S.wrong.slice(); cardState.tag = "wrong";
         go("card");
       }
       else if(a==="delWrong"){ delWrong(parseInt(el.getAttribute("data-i"),10)); save(); render(); }
@@ -780,6 +925,24 @@ function bind(){
       unlockMedia();
       SET[el.getAttribute("data-set")] = el.checked;
       if(el.getAttribute("data-set")==="sfx" && el.checked) sfx("right");
+    });
+  });
+  document.querySelectorAll("[data-lv]").forEach(function(el){
+    el.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      unlockMedia(); sfx("tap");
+      const lv = parseInt(el.getAttribute("data-lv"),10);
+      const k = S.set.range.indexOf(lv);
+      if(k>=0){
+        if(S.set.range.length<=1) return;      /* 至少要留一個範圍 */
+        S.set.range.splice(k,1);
+      }else{
+        S.set.range.push(lv);
+      }
+      S.set.range.sort(function(a,b){ return a-b; });
+      save();
+      cardState.order=[]; quizState.qs=[]; spellState.qs=[];   /* 換範圍＝重新出題 */
+      render();
     });
   });
   const sp = document.getElementById("spellIn");
