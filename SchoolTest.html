@@ -280,22 +280,19 @@ function normSpell(s){
     .replace(/\s*\.\.\.\s*/g,"...")   /* 「pass on ... to ...」也算對 */
     .trim();
 }
-/* 出題池：range(依目前勾選範圍)／all(全部 L1～L3)／wrong(錯題本) */
+/* 出題池：null＝依目前勾選範圍；wrong＝錯題本（不受範圍限制） */
 function poolOf(pool){
-  if(pool === "all")   return range(0, TOTAL);
   if(pool === "wrong") return S.wrong.slice();
   return null;
 }
-function tagOf(pool){ return pool === "all" ? "all" : (pool === "wrong" ? "wrong" : ""); }
-/* 出題索引：優先用傳進來的池，沒有就依標籤決定，最後才用目前勾選範圍 */
+function tagOf(pool){ return pool === "wrong" ? "wrong" : ""; }
+/* 出題索引：優先用傳進來的池，沒有就用目前勾選範圍 */
 function poolIdx(pool, tag){
   if(pool && pool.length) return pool.slice();
-  if(tag === "all")   return range(0, TOTAL);
   if(tag === "wrong") return S.wrong.slice();
   return scopeIdx();
 }
 function poolName(tag){
-  if(tag === "all")   return "全部範圍 L1～L3";
   if(tag === "wrong") return "錯題本";
   return "範圍 " + scopeLabel();
 }
@@ -445,7 +442,6 @@ function render(){
     case "wrong":  html = viewWrong(); break;
     case "result": html = viewResult(); break;
     case "browse": html = viewBrowse(); break;
-    case "review": html = viewReview(); break;
   }
   app.innerHTML = html;
   bind();
@@ -481,7 +477,6 @@ function viewHome(){
 
   h += rangePicker(sc.length);
 
-  h += reviewEntry();
   h += '<button class="btn primary" data-go="card"><span class="em">📖</span>學習卡<span class="hint">一張一張翻，自動唸給你聽</span></button>';
   h += '<button class="btn" data-go="quiz" data-mode="en2zh"><span class="em">🔵</span>看英文選中文<span class="hint">10 題四選一，出題先唸一次</span></button>';
   h += '<button class="btn" data-go="quiz" data-mode="zh2en"><span class="em">🟠</span>看中文選英文<span class="hint">10 題四選一，答完唸正解</span></button>';
@@ -493,27 +488,6 @@ function viewHome(){
   h += '<div class="foot">進度存在這支手機裡，關掉網頁也會保留。<br>手機請用 Chrome／Safari 開啟。</div>';
   return h;
 }
-/* 複習全部範圍：不管勾了什麼，一律練全部 L1～L3（會避開已學會的） */
-function reviewEntry(){
-  const learned = S.learned.length;
-  const left = TOTAL - learned;
-  let h = '<button class="btn good" data-go="review"><span class="em">🗂️</span>複習全部範圍'+
-          '<span class="hint">L1～L3 全部 '+TOTAL+' 字一起練（不管上面勾了什麼）</span></button>';
-  return h;
-}
-function viewReview(){
-  const learned = S.learned.length;
-  let h = header("複習全部範圍", "全部 "+TOTAL+" 字　已學會 "+learned+"／未學會 "+(TOTAL-learned), "home");
-  h += '<div class="card"><div class="rowline" style="margin:0 2px 8px"><span>練習方式</span><span>不看上面的範圍勾選</span></div>'+
-       '<div class="tipline" style="margin:0">每一種都只出 10 題，從全部 '+TOTAL+' 字抽</div></div>';
-  h += '<button class="btn primary" data-go="card" data-pool="all"><span class="em">📖</span>學習卡（全部）<span class="hint">從還沒學會的字開始翻</span></button>';
-  h += '<button class="btn" data-go="quiz" data-mode="en2zh" data-pool="all"><span class="em">🔵</span>看英文選中文（全部）<span class="hint">10 題四選一，出題先唸一次</span></button>';
-  h += '<button class="btn" data-go="quiz" data-mode="zh2en" data-pool="all"><span class="em">🟠</span>看中文選英文（全部）<span class="hint">10 題四選一，答完唸正解</span></button>';
-  h += '<button class="btn" data-go="spell" data-pool="all"><span class="em">⌨️</span>拼字測驗（全部）<span class="hint">看中文，把英文拼出來</span></button>';
-  h += '<button class="btn ghost" data-go="browse"><span class="em">📋</span>單字一覽<span class="hint">目前範圍 '+scopeIdx().length+' 字＋發音</span></button>';
-  return h;
-}
-
 /* 範圍選擇：L1／L2／L3 可多選，存進設定 */
 function rangePicker(picked){
   let h = '<div class="card"><div class="rowline" style="margin:0 2px 10px"><span>測驗範圍</span><span>已選 '+picked+' 字</span></div><div class="chips">';
@@ -539,7 +513,7 @@ function viewCard(){
   const sc = cardState.base || scopeIdx();
   const i = cardState.order[cardState.pos];
   const w = WORDS[i];
-  const scopeTag = cardState.tag === "all" ? "全部 L1～L3" : (cardState.tag === "wrong" ? "錯題本" : scopeLabel());
+  const scopeTag = cardState.tag === "wrong" ? "錯題本" : scopeLabel();
   let h = header("學習卡", (cardState.pos+1)+" / "+cardState.order.length+"　已學會 "+sc.filter(isLearned).length+"/"+sc.length+"（"+scopeTag+"）", "home");
   h += '<div class="bar"><i style="width:'+Math.round((cardState.pos)*100/cardState.order.length)+'%"></i></div>';
   h += '<div class="cardbox'+(cardState.flipped?" flipped":"")+'" id="cbox">'+
