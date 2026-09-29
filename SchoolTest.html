@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#0f111a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>高中英文單字隨身背</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234460c8'/%3E%3Ctext x='50' y='70' font-size='58' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3EAB%3C/text%3E%3C/svg%3E">
 <style>
   :root{
     --bg:#0f111a; --panel:#191c2b; --panel2:#222639; --line:#2e3450;
@@ -126,6 +127,20 @@
   .grp{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;font-weight:800;
     color:var(--accent);margin:16px 2px 8px}
   .grp span{font-size:11px;color:var(--dim);font-weight:400}
+  /* 6 顆分級 chips：窄畫面自動排成 3＋3；最後一排不會被拉寬 */
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{flex:0 0 calc(33.333% - 6px);min-width:82px;min-height:56px}
+  textarea{width:100%;border-radius:14px;border:1px solid var(--line);background:#0b0d15;color:var(--txt);
+    font-size:15px;padding:12px;font-family:inherit;line-height:1.7;resize:vertical}
+  textarea:focus{outline:none;border-color:var(--accent)}
+  .flab{font-size:13px;color:var(--dim);margin:12px 0 6px}
+  .flab:first-child{margin-top:0}
+  .lvtip{background:#1a2136;border:1px solid #33406b;border-radius:16px;padding:14px;
+    font-size:13px;color:#c2cdf0;line-height:1.8;margin-bottom:12px}
+  .lvtip b{color:#e6ecff}
+  code{background:#0b0d15;border:1px solid var(--line);border-radius:6px;padding:1px 5px;font-size:12px}
+  .item > div:first-child{min-width:0}
+  .item .acts{flex-wrap:wrap;justify-content:flex-end}
 </style>
 </head>
 <body>
@@ -133,7 +148,10 @@
 
 <script>
 /* ================= 單字資料：來源 單字.txt（L1／L2／L3，釋義與標點照原稿） ================= */
-const WORDS = [
+/* ================= 單字資料：來源＝主人原稿（L1～L3＋核13～核15），釋義與標點照原稿 =================
+   這份是唯讀底稿；使用者的新增／修改／刪除另外存在瀏覽器裡，更新原稿不會蓋掉。 */
+const BAKED = [
+  /* L1（27 字） */
   {w:"employ", z:"僱用", lv:1},
   {w:"corporation", z:"（大）公司；集團公司", lv:1},
   {w:"suffer", z:"受苦", lv:1},
@@ -161,6 +179,7 @@ const WORDS = [
   {w:"after all", z:"畢竟", lv:1},
   {w:"pass away", z:"過世", lv:1},
   {w:"make a difference", z:"有所影響", lv:1},
+  /* L2（25 字） */
   {w:"innovative", z:"創新的", lv:2},
   {w:"promise", z:"可望…；預示…", lv:2},
   {w:"material", z:"（活動所需的）材料", lv:2},
@@ -186,6 +205,7 @@ const WORDS = [
   {w:"figure out", z:"想出", lv:2},
   {w:"roll up one’s sleeves", z:"挽起袖子（表示開始行動）", lv:2},
   {w:"get down to…", z:"開始做某事", lv:2},
+  /* L3（27 字） */
   {w:"humankind", z:"人類", lv:3},
   {w:"universe", z:"宇宙", lv:3},
   {w:"fur", z:"（動物的）毛", lv:3},
@@ -212,34 +232,193 @@ const WORDS = [
   {w:"as a result", z:"因此", lv:3},
   {w:"fell victim to", z:"成為…的受害者；受…所害", lv:3},
   {w:"feed on", z:"靠…為食", lv:3},
-  {w:"set a stage for", z:"為…作好準備", lv:3}
+  {w:"set a stage for", z:"為…作好準備", lv:3},
+  /* 核13（33 字） */
+  {w:"cast", z:"扔；擲；演員陣容；石膏", lv:4},
+  {w:"squeeze", z:"擠；壓；緊握；壓榨", lv:4},
+  {w:"award", z:"獎品；授予；給予", lv:4},
+  {w:"drip", z:"滴下；滴水聲", lv:4},
+  {w:"journey", z:"旅行", lv:4},
+  {w:"client", z:"客戶", lv:4},
+  {w:"precious", z:"珍貴的", lv:4},
+  {w:"jet", z:"噴射機；搭飛機旅行；噴出", lv:4},
+  {w:"mystery", z:"神秘；神秘難解的事物", lv:4},
+  {w:"mankind", z:"人類", lv:4},
+  {w:"campus", z:"（大學）校園", lv:4},
+  {w:"scream", z:"發出尖叫聲；尖叫", lv:4},
+  {w:"harm", z:"傷害", lv:4},
+  {w:"budget", z:"預算；安排（開支）；規劃（時間等）", lv:4},
+  {w:"flame", z:"火焰；燃燒", lv:4},
+  {w:"wipe", z:"擦拭；消滅；抹", lv:4},
+  {w:"angel", z:"天使", lv:4},
+  {w:"barrel", z:"大桶；槍枝的槍管", lv:4},
+  {w:"clue", z:"線索；端倪；頭緒", lv:4},
+  {w:"eager", z:"渴望的", lv:4},
+  {w:"spin", z:"紡紗；編造（故事）；旋轉", lv:4},
+  {w:"romantic", z:"不切實際的；浪漫的；浪漫主義者", lv:4},
+  {w:"passion", z:"熱情；熱愛", lv:4},
+  {w:"adventure", z:"冒險；奇遇", lv:4},
+  {w:"studio", z:"播音室；工作室；攝影棚", lv:4},
+  {w:"verse", z:"韻文；詩", lv:4},
+  {w:"bride", z:"新娘", lv:4},
+  {w:"bore", z:"使厭煩", lv:4},
+  {w:"presence", z:"出席；在場", lv:4},
+  {w:"doughnut", z:"甜甜圈", lv:4},
+  {w:"rush", z:"衝；匆促行動", lv:4},
+  {w:"bitter", z:"苦的", lv:4},
+  {w:"bookcase", z:"書櫃", lv:4},
+  /* 核14（26 字） */
+  {w:"swear", z:"發誓；說髒話", lv:5},
+  {w:"parade", z:"遊行", lv:5},
+  {w:"cigarette", z:"香菸", lv:5},
+  {w:"plastic", z:"塑膠；塑膠的", lv:5},
+  {w:"float", z:"漂浮；浮板", lv:5},
+  {w:"pole", z:"極，磁極；竿子", lv:5},
+  {w:"casual", z:"偶然的；無心的；非正式的（指服裝）", lv:5},
+  {w:"doubtful", z:"起疑的；可疑的", lv:5},
+  {w:"stuff", z:"東西；塞滿", lv:5},
+  {w:"bare", z:"空的；赤裸的；露出", lv:5},
+  {w:"tourist", z:"觀光客；遊客；觀光的", lv:5},
+  {w:"leap", z:"跳躍；跳", lv:5},
+  {w:"fade", z:"褪色；漸弱", lv:5},
+  {w:"cabin", z:"（在森林或山中搭建的）小木屋；船艙；機艙", lv:5},
+  {w:"powder", z:"粉末；灑粉", lv:5},
+  {w:"deck", z:"甲板", lv:5},
+  {w:"limb", z:"四肢之一", lv:5},
+  {w:"mayor", z:"市長", lv:5},
+  {w:"disk", z:"光碟片", lv:5},
+  {w:"strategy", z:"策略；謀略", lv:5},
+  {w:"crawl", z:"爬；緩慢的行進", lv:5},
+  {w:"barn", z:"穀倉", lv:5},
+  {w:"routine", z:"慣例；例行公事；例行公事的", lv:5},
+  {w:"carpet", z:"地毯；在…鋪地毯", lv:5},
+  {w:"broadcast", z:"廣播", lv:5},
+  {w:"brunch", z:"早午餐", lv:5},
+  /* 核15（33 字） */
+  {w:"dislike", z:"討厭", lv:6},
+  {w:"patience", z:"耐心", lv:6},
+  {w:"bubble", z:"泡沫", lv:6},
+  {w:"mushroom", z:"蘑菇", lv:6},
+  {w:"mobile", z:"可動的；流動的", lv:6},
+  {w:"nickname", z:"綽號", lv:6},
+  {w:"vivid", z:"生動的", lv:6},
+  {w:"bury", z:"埋葬；使投入", lv:6},
+  {w:"continent", z:"大陸；洲", lv:6},
+  {w:"farther", z:"更遠地", lv:6},
+  {w:"weep", z:"流淚；哭泣", lv:6},
+  {w:"ripe", z:"成熟的", lv:6},
+  {w:"boot", z:"長靴", lv:6},
+  {w:"complain", z:"抱怨", lv:6},
+  {w:"cheek", z:"臉頰", lv:6},
+  {w:"cocktail", z:"雞尾酒", lv:6},
+  {w:"wander", z:"漫遊；閒逛", lv:6},
+  {w:"miracle", z:"奇蹟", lv:6},
+  {w:"whip", z:"鞭子", lv:6},
+  {w:"wealthy", z:"富有的", lv:6},
+  {w:"drunk", z:"酒醉的", lv:6},
+  {w:"lawn", z:"草坪", lv:6},
+  {w:"portrait", z:"肖像；畫像", lv:6},
+  {w:"marble", z:"大理石；玻璃彈珠", lv:6},
+  {w:"comma", z:"逗號", lv:6},
+  {w:"laughter", z:"笑", lv:6},
+  {w:"bless", z:"祝福；保佑", lv:6},
+  {w:"crash", z:"墜毀；毀壞", lv:6},
+  {w:"cruel", z:"殘忍的", lv:6},
+  {w:"database", z:"資料庫", lv:6},
+  {w:"grassy", z:"長滿草的", lv:6},
+  {w:"dumpling", z:"餃子", lv:6},
+  {w:"geography", z:"地理", lv:6}
 ];
-const TOTAL = WORDS.length;
-const LEVELS = [1,2,3];
-const LSKEY = "vocab_high_en_v2";
+/* 分級不寫死：預設六級，之後新增的存進 S.levels，程式完全照著跑 */
+const DEFLEVELS = ["L1","L2","L3","核13","核14","核15"];
+let LEVELS = [];            /* 分級編號，依 S.levels 的順序＝1,2,3… */
+let LVNAME = {};            /* 編號 → 顯示名稱 */
+const BAKEDCNT = BAKED.length;
+let WORDS = [];              /* 實際使用的清單＝內建 − 刪除 ＋ 自訂（另套用修改） */
+let TOTAL = 0;
+const LSKEY = "vocab_high_en_v3";
+const LSOLD = "vocab_high_en_v2";
 /* ================= 設定與進度 ================= */
-const DEFSET = {sfx:true, auto:true, vib:true, range:[1,2,3]};
-const DEF = {learned:[], wrong:[], q:0, right:0, last:0, set:{}};
+const DEFSET = {sfx:true, auto:true, vib:true, range:null};   /* range=null ⇒ 全部級別 */
+const DEF = {learned:[], wrong:[], q:0, right:0, last:0, set:{}, custom:[], edit:{}, del:[], levels:DEFLEVELS.slice()};
 let S = load();
+syncLevels();            /* 建分級表（load 內部已依 levels 修好範圍） */
+rebuild();
 
-function load(){
-  try{
-    const raw = localStorage.getItem(LSKEY);
-    if(raw){
-      const o = JSON.parse(raw);
-      return {
-        learned: Array.isArray(o.learned)?o.learned:[],
-        wrong:   Array.isArray(o.wrong)?o.wrong:[],
-        q: o.q||0, right: o.right||0, last: o.last||0,
-        set: fixSet(o.set)
-      };
-    }
-  }catch(e){}
-  const d = JSON.parse(JSON.stringify(DEF)); d.set = fixSet(null);
-  return d;
+function newId(){ return "u" + Date.now().toString(36) + Math.floor(Math.random()*46656).toString(36); }
+function bakedId(i){ return "b" + i; }
+
+/* 由「內建 − 刪除 ＋ 自訂」再套用修改，組出實際清單 */
+function rebuild(){
+  const out = [];
+  for(let k=0;k<BAKED.length;k++){
+    const id = bakedId(k);
+    if(S.del.indexOf(id)>=0) continue;
+    const e = S.edit[id], base = BAKED[k];
+    out.push(e ? {id:id, w:e.w, z:e.z, lv:e.lv} : {id:id, w:base.w, z:base.z, lv:base.lv});
+  }
+  const cs = Array.isArray(S.custom) ? S.custom : [];
+  for(let k=0;k<cs.length;k++){
+    const c = cs[k];
+    if(S.del.indexOf(c.id)>=0) continue;
+    const e = S.edit[c.id];
+    out.push(e ? {id:c.id, w:e.w, z:e.z, lv:e.lv} : {id:c.id, w:c.w, z:c.z, lv:c.lv});
+  }
+  WORDS = out;
+  TOTAL = WORDS.length;
 }
+/* 舊版的進度存的是「第幾個字」（數字），換算成穩定編號；已刪字也不會亂 */
+function convIDs(a){
+  if(!Array.isArray(a)) return [];
+  const out = [];
+  for(let k=0;k<a.length;k++){
+    const v = a[k];
+    if(typeof v === "string"){ if(out.indexOf(v)<0) out.push(v); }
+    else if(typeof v === "number" && v>=0 && v<BAKEDCNT){ const id = bakedId(v); if(out.indexOf(id)<0) out.push(id); }
+  }
+  return out;
+}
+function load(){ return load2(null); }
+/* 從一份物件組出狀態（o=null 表示從瀏覽器讀） */
+function load2(src){
+  let o = src || null;
+  if(!o){
+    try{ const raw = localStorage.getItem(LSKEY); if(raw) o = JSON.parse(raw); }catch(e){}
+  }
+  if(!o){
+    try{
+      const old = localStorage.getItem(LSOLD);
+      if(old){
+        const p = JSON.parse(old) || {};
+        o = {learned:p.learned, wrong:p.wrong, q:p.q||0, right:p.right||0, last:p.last||0, set:p.set};
+        /* 這次多了三個分級，一次幫他打開；原本勾的照舊保留 */
+        if(o.set && Array.isArray(o.set.range) && o.set.range.length){
+          /* v2 只有 1~3 級；新的級別一次幫他打開，原本勾的照舊 */
+          for(let k=1;k<=DEFLEVELS.length;k++) if(o.set.range.indexOf(k)<0) o.set.range.push(k);
+        }
+      }
+    }catch(e){}
+  }
+  if(!o) o = {};
+  const lvls = (Array.isArray(o.levels) && o.levels.length) ? o.levels.map(function(x){ return String(x); }) : DEFLEVELS.slice();
+  const lvlsIdx = lvls.map(function(_, k){ return k+1; });
+  return {
+    learned: convIDs(o.learned), wrong: convIDs(o.wrong),
+    q: o.q||0, right: o.right||0, last: o.last||0,
+    set: fixSet(o.set, lvlsIdx),
+    custom: Array.isArray(o.custom)?o.custom:[],
+    edit: (o.edit && typeof o.edit==="object")?o.edit:{},
+    del: Array.isArray(o.del)?o.del:[],
+    levels: lvls
+  };
+}
+let saveWarned = false;
 function save(){
-  try{ localStorage.setItem(LSKEY, JSON.stringify(S)); }catch(e){}
+  try{ localStorage.setItem(LSKEY, JSON.stringify(S)); }
+  catch(e){
+    if(saveWarned) return; saveWarned = true;
+    try{ alert("這台裝置的儲存空間滿了，剛才的變更可能沒存進去。\n請先「匯出備份」，或刪掉一些自訂單字再試。"); }catch(e2){}
+  }
 }
 const SET = new Proxy({}, {
   get:function(t,k){ return S.set[k]; },
@@ -250,21 +429,70 @@ const SET = new Proxy({}, {
 function esc(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function range(a,b){ const r=[]; for(let i=a;i<b;i++) r.push(i); return r; }
-function lvName(lv){ return "L"+lv; }
+function lvName(lv){ return LVNAME[lv] || ("分級"+lv); }
+/* 依 S.levels 重建分級表；名稱重複或空白的自動補正 */
+function syncLevels(){
+  if(!Array.isArray(S.levels) || !S.levels.length) S.levels = DEFLEVELS.slice();
+  const seen = {}, out = [];
+  for(let k=0;k<S.levels.length;k++){
+    let n = String(S.levels[k]||"").trim();
+    if(!n){                                  /* 空白 → 自動取名，且不與現有撞名 */
+      let g = k + 1;
+      while(seen[("分級" + g).toLowerCase()]) g++;
+      n = "分級" + g;
+    }
+    const key = n.toLowerCase().replace(/\s+/g, "");
+    if(seen[key]) continue;                  /* 同名（忽略大小寫與空白）→ 直接移除這個重複項 */
+    seen[key] = 1;
+    out.push(n);
+  }
+  S.levels = out;
+  LEVELS = []; LVNAME = {};
+  for(let k=0;k<S.levels.length;k++){ LEVELS.push(k+1); LVNAME[k+1] = S.levels[k]; }
+}
+function lvCountAll(){ return LEVELS.length; }
+/* 目前使用的分級名稱 ↔ 編號 */
+function lvByName(name){
+  const t = String(name||"").trim();
+  if(!t) return -1;
+  const sq = t.replace(/\s+/g, "");
+  const low = t.toLowerCase(), lows = sq.toLowerCase();
+  for(let k=0;k<S.levels.length;k++){
+    const n = String(S.levels[k]);
+    if(n === t || n === sq || n.toLowerCase() === low || n.toLowerCase() === lows) return k+1;
+  }
+  return -1;
+}
+/* 新增一個分級（回傳新編號） */
+function addLevel(name){
+  let n = String(name||"").trim();
+  if(!n) n = "分級" + (S.levels.length+1);
+  const ex = lvByName(n);          /* 已含忽略大小寫與空白 */
+  if(ex >= 0) return ex;
+  S.levels.push(n);
+  syncLevels();
+  return lvByName(n);
+}
 function lvIdx(lv){ const out=[]; for(let k=0;k<WORDS.length;k++) if(WORDS[k].lv===lv) out.push(k); return out; }
 function lvCount(lv){ return lvIdx(lv).length; }
 /* 目前勾選的範圍（回傳單字索引陣列） */
 function scopeIdx(){ const out=[]; for(let k=0;k<WORDS.length;k++) if(S.set.range.indexOf(WORDS[k].lv)>=0) out.push(k); return out; }
 function scopeLabel(){
   const on=[]; for(let k=0;k<LEVELS.length;k++) if(S.set.range.indexOf(LEVELS[k])>=0) on.push(lvName(LEVELS[k]));
-  return on.length===LEVELS.length ? "全部 L1～L3" : on.join("＋");
+  if(!on.length) return "未選";
+  if(on.length === LEVELS.length) return "全部 " + LEVELS.length + " 級";
+  if(on.length > 4) return "已選 " + on.length + " 級";
+  return on.join("＋");
 }
 /* 讀回設定時把範圍修回合法值（至少留一個 L） */
-function fixSet(o){
+function fixSet(o, lvlsIdx){
+  const L = (Array.isArray(lvlsIdx) && lvlsIdx.length) ? lvlsIdx : LEVELS;
   const s = Object.assign({}, DEFSET, o||{});
   const r = [];
-  for(let k=0;k<LEVELS.length;k++) if(Array.isArray(s.range) && s.range.indexOf(LEVELS[k])>=0) r.push(LEVELS[k]);
-  s.range = r.length?r:LEVELS.slice();
+  if(Array.isArray(s.range)){
+    for(let k=0;k<L.length;k++) if(s.range.indexOf(L[k])>=0) r.push(L[k]);
+  }
+  s.range = r.length ? r : L.slice();   /* 沒指定或全部失效 ⇒ 全部級別 */
   s.sfx = !!s.sfx; s.auto = !!s.auto; s.vib = !!s.vib;
   return s;
 }
@@ -282,14 +510,14 @@ function normSpell(s){
 }
 /* 出題池：null＝依目前勾選範圍；wrong＝錯題本（不受範圍限制） */
 function poolOf(pool){
-  if(pool === "wrong") return S.wrong.slice();
+  if(pool === "wrong") return wrongIdx();
   return null;
 }
 function tagOf(pool){ return pool === "wrong" ? "wrong" : ""; }
 /* 出題索引：優先用傳進來的池，沒有就用目前勾選範圍 */
 function poolIdx(pool, tag){
   if(pool && pool.length) return pool.slice();
-  if(tag === "wrong") return S.wrong.slice();
+  if(tag === "wrong") return wrongIdx();
   return scopeIdx();
 }
 function poolName(tag){
@@ -297,11 +525,21 @@ function poolName(tag){
   return "範圍 " + scopeLabel();
 }
 
-function isLearned(i){ return S.learned.indexOf(i)>=0; }
-function isWrong(i){ return S.wrong.indexOf(i)>=0; }
-function markLearned(i){ if(!isLearned(i)) S.learned.push(i); }
-function addWrong(i){ if(!isWrong(i)) S.wrong.push(i); }
-function delWrong(i){ const k=S.wrong.indexOf(i); if(k>=0) S.wrong.splice(k,1); }
+function idAt(i){ return WORDS[i] ? WORDS[i].id : null; }
+function idxById(id){ for(let k=0;k<WORDS.length;k++) if(WORDS[k].id===id) return k; return -1; }
+function wordById(id){ const i = idxById(id); return i<0 ? null : WORDS[i]; }
+function isLearned(i){ const id=idAt(i); return id ? S.learned.indexOf(id)>=0 : false; }
+function isWrong(i){ const id=idAt(i); return id ? S.wrong.indexOf(id)>=0 : false; }
+function markLearned(i){ const id=idAt(i); if(id && S.learned.indexOf(id)<0) S.learned.push(id); }
+function addWrong(i){ const id=idAt(i); if(id && S.wrong.indexOf(id)<0) S.wrong.push(id); }
+function delWrong(i){ const id=idAt(i); if(!id) return; const k=S.wrong.indexOf(id); if(k>=0) S.wrong.splice(k,1); }
+function delWrongId(id){ const k=S.wrong.indexOf(id); if(k>=0) S.wrong.splice(k,1); }
+/* 錯題本存的是編號 → 換算成目前的索引（已刪除的字自動略過） */
+function wrongIdx(){
+  const out = [];
+  for(let k=0;k<S.wrong.length;k++){ const i = idxById(S.wrong[k]); if(i>=0) out.push(i); }
+  return out;
+}
 
 /* ================= 音效（WebAudio，不需任何音檔） ================= */
 let AC = null;
@@ -442,6 +680,10 @@ function render(){
     case "wrong":  html = viewWrong(); break;
     case "result": html = viewResult(); break;
     case "browse": html = viewBrowse(); break;
+    case "manage": html = viewManage(); break;
+    case "edit":   html = viewEdit(); break;
+    case "batch":  html = viewBatch(); break;
+    case "levels": html = viewLevels(); break;
   }
   app.innerHTML = html;
   bind();
@@ -455,6 +697,11 @@ function afterRender(){
   if(view.name==="card" && SET.auto){
     const i = cardState.order[cardState.pos];
     if(i!=null && !cardState.flipped) speakOnce("card:"+i, WORDS[i].w);
+  }
+  if(view.name==="list") showStore();
+  if(view.name==="edit"){
+    const e2 = document.getElementById("edW");
+    if(e2 && !e2.dataset.done){ e2.dataset.done="1"; }
   }
   if(view.name==="quiz" && SET.auto && quizState.picked===null){
     const i = quizState.qs[quizState.pos];
@@ -484,9 +731,26 @@ function viewHome(){
   h += '<button class="btn '+(wn?'bad':'ghost')+'" data-go="wrong"><span class="em">🔁</span>錯題複習'+
        (wn?'<span class="hint">目前 '+wn+' 字，優先練這些</span>':'<span class="hint">還沒有錯題，很棒</span>')+'</button>';
   h += '<button class="btn ghost" data-go="browse"><span class="em">📋</span>單字一覽<span class="hint">目前範圍 '+sc.length+' 字＋發音</span></button>';
-  h += '<button class="btn ghost" data-go="list"><span class="em">⚙️</span>進度與設定<span class="hint">音效、發音、重置紀錄</span></button>';
-  h += '<div class="foot">進度存在這支手機裡，關掉網頁也會保留。<br>手機請用 Chrome／Safari 開啟。</div>';
+  h += '<button class="btn ghost" data-go="manage"><span class="em">📝</span>管理單字<span class="hint">新增、修改、刪除、匯入匯出</span></button>';
+  h += '<button class="btn ghost" data-go="list"><span class="em">⚙️</span>進度與設定<span class="hint">音效、發音、儲存空間、重置紀錄</span></button>';
+  h += iosTip();
+  h += '<div class="foot">進度與自訂單字存在這支手機的瀏覽器裡，關掉網頁也會保留。<br>手機請用 Chrome／Safari 開啟。</div>';
   return h;
+}
+/* iPhone 專屬提醒：Safari 對「7 天沒打開的網站」會清掉儲存空間，加到主畫面可豁免 */
+function iosTip(){
+  if(!/iPhone|iPad|iPod/.test(navigator.userAgent||"")) return "";
+  let hidden = false;
+  try{ hidden = localStorage.getItem("vocab_ios_tip_off")==="1"; }catch(e){}
+  if(hidden) return "";
+  const standalone = window.navigator.standalone === true ||
+    (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  if(standalone) return "";
+  return '<div class="lvtip"><b>📱 建議先「加到主畫面」</b><br>'+
+         'iPhone 的 Safari 有個規則：<b>超過七天沒打開的網站，儲存資料會被清掉</b>（進度會歸零）。'+
+         '把這個網頁加到主畫面就不受這條規則管，而且開起來像個 App。<br>'+
+         '做法：Safari 底下按<b>分享 ⬆️</b> → <b>加入主畫面</b>。<br>'+
+         '<button class="mini" data-act="hideIosTip" style="margin-top:8px">知道了，不再顯示</button></div>';
 }
 /* 範圍選擇：L1／L2／L3 可多選，存進設定 */
 function rangePicker(picked){
@@ -494,7 +758,7 @@ function rangePicker(picked){
   for(let k=0;k<LEVELS.length;k++){
     const lv = LEVELS[k];
     const on = S.set.range.indexOf(lv)>=0;
-    h += '<button class="chip'+(on?' on':'')+'" data-lv="'+lv+'">'+lvName(lv)+'<span class="n">'+lvCount(lv)+' 字</span></button>';
+    h += '<button class="chip'+(on?' on':'')+'" data-lv="'+lv+'">'+esc(lvName(lv))+'<span class="n">'+lvCount(lv)+' 字</span></button>';
   }
   h += '</div><div class="tipline" style="margin-top:10px">可多選，沒有勾選的不會出題</div></div>';
   return h;
@@ -753,11 +1017,11 @@ function viewWrong(){
   h += '<button class="btn" data-go="spell" data-pool="wrong"><span class="em">⌨️</span>練這些（拼字）</button>';
   h += '<button class="btn good" data-act="wrongCards"><span class="em">📖</span>用學習卡複習錯題</button>';
   h += '<div style="height:6px"></div>';
-  S.wrong.forEach(function(i){
-    const w = WORDS[i];
+  S.wrong.forEach(function(id){
+    const w = wordById(id); if(!w) return;
     h += '<div class="item"><div><div class="w">'+esc(w.w)+'</div><div class="z">'+esc(w.z)+'</div></div>'+
          '<div class="acts"><button class="mini" data-speak="'+esc(w.w)+'">🔊</button>'+
-         '<button class="mini" data-act="delWrong" data-i="'+i+'">移除</button></div></div>';
+         '<button class="mini" data-act="delWrong" data-id="'+esc(id)+'">移除</button></div></div>';
   });
   return h;
 }
@@ -772,7 +1036,8 @@ function viewBrowse(){
     const lv = LEVELS[k];
     if(S.set.range.indexOf(lv)<0) continue;
     const ids = lvIdx(lv);
-    h += '<div class="grp">'+lvName(lv)+'<span>'+ids.length+' 字</span></div>';
+    if(!ids.length) continue;
+    h += '<div class="grp">'+esc(lvName(lv))+'<span>'+ids.length+' 字</span></div>';
     ids.forEach(function(i){
       const w = WORDS[i];
       h += '<div class="item"><span class="dot'+(isLearned(i)?" on":"")+'"></span>'+
@@ -806,12 +1071,514 @@ function viewList(){
        '若手機按了都沒聲音：iPhone 請確認側邊的靜音撥鍵在「響鈴」位置（靜音時語音朗讀會整句沒聲音），並確認媒體音量已開。</div>';
 
   h += '<div class="card" style="margin-top:12px"><div style="font-size:15px;font-weight:700;margin-bottom:8px">已學會的單字</div>'+
-       (learned? '<div style="font-size:14px;color:var(--dim);line-height:1.9">'+S.learned.slice().sort(function(a,b){return a-b;}).map(function(i){return esc(WORDS[i].w);}).join("、")+'</div>'
+       (learned? '<div style="font-size:14px;color:var(--dim);line-height:1.9">'+
+                  S.learned.map(function(id){ const w=wordById(id); return w?esc(w.w):""; }).filter(function(x){return x;}).join("、")+'</div>'
                : '<div class="empty" style="padding:10px">還沒有任何紀錄。</div>')+'</div>';
   h += '<button class="btn ghost" data-act="resetWrong">清空錯題本</button>';
   h += '<button class="btn bad" data-act="resetAll">全部重置（學會紀錄＋錯題）</button>';
-  h += '<div class="foot">資料只存在這支手機的瀏覽器裡。<br>換手機或清除瀏覽資料就會歸零。</div>';
+  h += '<div class="foot">資料只存在這支手機的瀏覽器裡。<br>換手機或清除瀏覽資料就會歸零，記得定期匯出備份。</div>';
+
+  h += '<div class="card" style="margin-top:12px"><div style="font-size:15px;font-weight:700;margin-bottom:8px">儲存空間</div>'+
+       '<div class="diag" id="storeBox">檢查中…</div>'+
+       '<button class="btn ghost" data-act="askPersist" style="margin-top:10px">🔒 要求永久儲存</button>'+
+       '<div class="tipline" style="margin-top:8px;text-align:left">iPhone 的 Safari 若超過七天沒打開，儲存資料會被清掉。'+
+       '「加到主畫面」可豁免；也可以按上面這顆要求永久儲存。</div></div>';
   return h;
+}
+
+/* ---------- 單字管理 ---------- */
+let mgFilter = 0;
+let editState = null;
+let batchText = "";
+let batchLv = 1;
+
+function viewManage(){
+  const nc = S.custom.length;
+  const nd = S.del.length;
+  let h = header("單字管理", "內建 "+BAKEDCNT+" 字・自訂 "+nc+" 字・目前共 "+TOTAL+" 字", "home");
+  if(nd) h += '<div class="tipline" style="text-align:left;margin-bottom:10px">已刪除 '+nd+' 個內建單字（匯入備份可還原）</div>';
+  h += '<button class="btn primary" data-act="newWord"><span class="em">➕</span>新增單字<span class="hint">輸入英文、中文與分級</span></button>';
+  h += '<button class="btn" data-act="batchWord"><span class="em">📥</span>貼上清單批次匯入<span class="hint">一行一個字，可沿用「單字 中文」格式</span></button>';
+  h += '<button class="btn ghost" data-act="exportData"><span class="em">💾</span>匯出備份<span class="hint">單字與進度一起存成檔案</span></button>';
+  h += '<button class="btn ghost" data-act="importData"><span class="em">📂</span>匯入備份<span class="hint">貼上或選擇先前匯出的備份</span></button>';
+  h += '<button class="btn ghost" data-go="levels"><span class="em">🗂️</span>分級管理<span class="hint">目前 '+LEVELS.length+' 級：'+S.levels.join("／")+'</span></button>';
+  h += '<div class="card" style="padding:12px 14px"><div class="rowline" style="margin:0 0 8px"><span>分級篩選</span><span>'+
+       (mgFilter?lvName(mgFilter)+"　"+lvCount(mgFilter)+" 字":"全部 "+TOTAL+" 字")+'</span></div><div class="chips">'+
+       '<button class="chip'+(mgFilter===0?' on':'')+'" data-mgf="0">全部<span class="n">'+TOTAL+'</span></button>';
+  for(let k=0;k<LEVELS.length;k++){
+    const lv=LEVELS[k];
+    h += '<button class="chip'+(mgFilter===lv?' on':'')+'" data-mgf="'+lv+'">'+esc(lvName(lv))+'<span class="n">'+lvCount(lv)+' 字</span></button>';
+  }
+  h += '</div></div>';
+  h += '<div class="rowline"><span>「改」可編輯・「刪」可移除</span><span>點 🔊 聽發音</span></div>';
+  h += '<div style="height:8px"></div>';
+  for(let k=0;k<LEVELS.length;k++){
+    const lv = LEVELS[k];
+    if(mgFilter && mgFilter!==lv) continue;
+    const ids = lvIdx(lv);
+    if(!ids.length) continue;
+    h += '<div class="grp">'+esc(lvName(lv))+'<span>'+ids.length+' 字</span></div>';
+    ids.forEach(function(i){
+      const w = WORDS[i];
+      h += '<div class="item"><div style="min-width:0"><div class="w">'+esc(w.w)+'</div><div class="z">'+esc(w.z)+'</div></div>'+
+           '<div class="acts"><button class="mini" data-speak="'+esc(w.w)+'">🔊</button>'+
+           '<button class="mini" data-edit="'+esc(w.id)+'">改</button>'+
+           '<button class="mini" data-del="'+esc(w.id)+'">刪</button></div></div>';
+    });
+  }
+  return h;
+}
+
+/* ---------- 分級管理 ---------- */
+let lvEditName = "";
+function viewLevels(){
+  let h = header("分級管理", "目前 " + LEVELS.length + " 級", "manage");
+  h += '<div class="card" style="padding:12px 14px;font-size:12px;color:var(--dim);line-height:1.8">'+
+       '分級名稱可以自己取（例如 <code>L4</code>、<code>核16</code>、<code>單元1</code>）。<br>'+
+       '新增後，批次匯入貼上同名標題時就會自動歸到那一級。</div>';
+  h += '<button class="btn primary" data-act="addLevel"><span class="em">➕</span>新增分級</button>';
+  for(let k=0;k<LEVELS.length;k++){
+    const lv = LEVELS[k];
+    const n = lvCount(lv);
+    const isUsed = S.set.range.indexOf(lv) >= 0;
+    h += '<div class="item"><div style="min-width:0">'+
+         '<div class="w">'+esc(lvName(lv))+'</div>'+
+         '<div class="z">'+n+' 字'+(isUsed?'・列入測驗範圍':'・未列入範圍')+'</div></div>'+
+         '<div class="acts">'+
+         '<button class="mini" data-lvrename="'+lv+'">改名</button>'+
+         '<button class="mini" data-lvdel="'+lv+'">刪除</button>'+
+         '</div></div>';
+  }
+  h += '<div class="foot">刪除分級時，該級的字會移到第一級（L1），不會不見。</div>';
+  return h;
+}
+function addLevelFlow(){
+  const name = prompt("新分級的名稱（例如 L4、核16、單元1）", "L"+ (LEVELS.length+1));
+  if(name === null) return;
+  const t = String(name).trim();
+  if(!t){ alert("名稱不能空白。"); return; }
+  const lv = addLevel(t);
+  S.set.range.push(lv);              /* 新分級預設列入範圍 */
+  S.set.range = S.set.range.filter(function(v,i,a){ return a.indexOf(v)===i; }).sort(function(x,y){ return x-y; });
+  rebuild(); save();
+  cardState.order=[]; quizState.qs=[]; spellState.qs=[];
+  render();
+}
+function renameLevelFlow(lv){
+  const cur = lvName(lv);
+  const name = prompt("把「"+cur+"」改名為：", cur);
+  if(name === null) return;
+  const t = String(name).trim();
+  if(!t){ alert("名稱不能空白。"); return; }
+  if(t === cur) return;
+  const ex = lvByName(t);
+  if(ex >= 0 && ex !== lv){ alert("已經有同名的分級了。"); return; }
+  S.levels[lv-1] = t;
+  syncLevels(); save();
+  render();
+}
+function delLevelFlow(lv){
+  if(LEVELS.length <= 1){ alert("至少要留一個分級。"); return; }
+  const n = lvCount(lv);
+  const msg = "確定刪除分級「"+lvName(lv)+"」？\n"+
+              (n ? ("這一級的 "+n+" 個字會移到「"+lvName(LEVELS[0])+"」。\n") : "")+
+              "已學會／錯題紀錄都會保留。";
+  if(!confirm(msg)) return;
+  /* 該級的字改掛到第一級 */
+  const first = LEVELS[0];
+  for(let k=0;k<S.custom.length;k++){ if(S.custom[k].lv === lv) S.custom[k].lv = first; }
+  for(const id in S.edit){ if(S.edit[id].lv === lv) S.edit[id].lv = first; }
+  /* 內建字改掛：記在 edit 上（底稿不動） */
+  for(let k=0;k<BAKED.length;k++){
+    const id = bakedId(k);
+    if(S.del.indexOf(id)>=0) continue;
+    const eff = S.edit[id] || BAKED[k];
+    if(eff.lv === lv) S.edit[id] = {w:eff.w, z:eff.z, lv:first};
+  }
+ /* 移除分級，後面的編號往前補 */
+  S.levels.splice(lv-1,1);
+  const r = [];
+  for(let k=0;k<S.set.range.length;k++){
+    const v = S.set.range[k];
+    if(v === lv) continue;
+    r.push(v > lv ? v-1 : v);
+  }
+  S.set.range = r.length ? r : LEVELS.slice();
+  syncLevels();
+  S.set = fixSet(S.set);
+  rebuild(); save();
+  cardState.order=[]; quizState.qs=[]; spellState.qs=[];
+  render();
+}
+
+/* ---------- 新增／編輯單字 ---------- */
+function readEditInputs(){
+  if(!editState) return;
+  const a = document.getElementById("edW"), b2 = document.getElementById("edZ");
+  if(a) editState.w = a.value;
+  if(b2) editState.z = b2.value;
+}
+function viewEdit(){
+  const st = editState || {mode:"add", id:"", w:"", z:"", lv:1};
+  let h = header(st.mode==="add" ? "新增單字" : "編輯單字", "", "manage");
+  h += '<div class="card">'+
+       '<div class="flab">英文</div>'+
+       '<input type="text" id="edW" value="'+esc(st.w)+'" placeholder="例如 employ" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="font-size:20px;letter-spacing:0;text-align:left">'+
+       '<div class="flab">中文釋義</div>'+
+       '<input type="text" id="edZ" value="'+esc(st.z)+'" placeholder="例如 僱用" autocomplete="off" style="font-size:18px;letter-spacing:0;text-align:left">'+
+       '<div class="flab">分級</div><div class="chips">';
+  for(let k=0;k<LEVELS.length;k++){
+    const lv=LEVELS[k];
+    h += '<button class="chip'+(st.lv===lv?' on':'')+'" data-lvedit="'+lv+'">'+esc(lvName(lv))+'</button>';
+  }
+  h += '</div></div>';
+  h += '<button class="btn primary" data-act="saveWord">儲存</button>';
+  h += '<button class="btn ghost" data-go="manage">取消</button>';
+  return h;
+}
+function saveWord(){
+  if(!editState) return;
+  readEditInputs();
+  const w = String(editState.w||"").trim();
+  const z = String(editState.z||"").trim();
+  if(!w){ alert("請先填英文。"); return; }
+  if(!z){ alert("請先填中文釋義。"); return; }
+  const lv = (editState.lv>=1 && editState.lv<=LEVELS.length) ? editState.lv : 1;
+  if(editState.mode==="add"){
+    S.custom.push({id:newId(), w:w, z:z, lv:lv});
+  }else{
+    S.edit[editState.id] = {w:w, z:z, lv:lv};
+  }
+  rebuild(); save();
+  cardState.order=[]; quizState.qs=[]; spellState.qs=[];
+  editState = null;
+  go("manage");
+}
+
+/* ---------- 批次匯入 ---------- */
+/* 全形英數 → 半形（讓「Ｌ１」「１２」也能認） */
+function halfWidth(str){
+  return String(str||"")
+    .replace(/[\uff01-\uff5e]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xfee0); })
+    .replace(/\u3000/g, " ");
+}
+/* 這一段「像不像分級標題」：開頭是常見單位詞（可接阿拉伯或中文數字） */
+function headingish(t){
+  const x = halfWidth(String(t||"")).replace(/[：:]$/, "").replace(/\s+/g, "").trim();
+  if(!x) return false;
+  if(/^[Ll][Vv]?[0-9]+$/.test(x)) return true;
+  const NUM = "(?:[0-9]+|[一二三四五六七八九十百]+)";
+  return new RegExp("^(?:核|單元|章|課|回|級|班|篇|組|部|冊|本|Ch|Chapter|Unit|Lesson|Grade|Book|Lv|Level|Part|Section|Week|Day|Test|No)" + NUM + "$", "i").test(x);
+}
+/* 這一行是不是標題？
+   ① 整行完全等於某個現有分級名稱 → 是（名稱可以是任意文字）
+   ② 行首像「單位＋數字」（L1／核13／單元二／Unit 9／Chapter 3）→ 是
+   ③ 都不是 → 不是
+   ※ 回傳的是「原樣的名稱」（保留空白），顯示才好看；比對時另有忽略空白的規則 */
+function headName(line){
+  const raw = String(line||"").trim();
+  if(!raw) return null;
+  const flat = halfWidth(raw).replace(/[：:]\s*$/, "").trim();
+  /* ① 現有分級名稱（任意文字） */
+  if(lvByName(flat) >= 0) return flat;
+  /* ② 行首的「單位＋數字」，允許中間有空白（Unit 9、Chapter 3） */
+  const NUM = "(?:[0-9]+|[一二三四五六七八九十百]+)";
+  const re2 = new RegExp("^\\s*(L\\s*[Vv]?\\s*" + NUM + "|(?:核|單元|章|課|回|級|班|篇|組|部|冊|本)\\s*" + NUM +
+                         "|(?:Ch|Chapter|Unit|Lesson|Grade|Book|Lv|Level|Part|Section|Week|Day|Test)\\s*" + NUM + ")\\s*[：:]?", "i");
+  const m = flat.match(re2);
+  if(m) return halfWidth(m[1]).replace(/\s+$/, "").trim();   /* 保留中間空白（Unit 9） */
+  return null;
+}
+/* 標題名 → 分級編號（對不上回 -1；不亂猜） */
+function lvFromHeading(line){
+  const t = String(line||"").replace(/[：:]\s*$/, "").trim();
+  if(!t) return -1;
+  return lvByName(t);          /* lvByName 已處理大小寫與空白；對不上就回 -1，不亂猜 */
+}
+/* 判斷這一行是不是「正常的單字列」（英文 中文）
+   英文段至少要有一個英文字母，中文段不能是空的 */
+function isWordLine(ln){
+  if(/^[#＃]/.test(ln)) return false;
+  if(/^(備註|說明|注意|附註)/.test(ln)) return false;
+  const tab = ln.indexOf("\t");
+  if(tab >= 0){
+    const a = ln.slice(0,tab).trim(), b = ln.slice(tab+1).trim();
+    return /[A-Za-z]/.test(a) && b.length > 0;
+  }
+  const m = ln.search(/[\u4e00-\u9fff\uff08\uff09]/);
+  if(m <= 0) return false;
+  const a = ln.slice(0,m).trim(), b = ln.slice(m).trim();
+  return /[A-Za-z]/.test(a) && b.length > 0;
+}
+/* 這一行「看起來像不像一個標題」但還沒有對應分級：
+   不是單字列、不是註解、短短的一行（<=16 字、不超過 3 個詞）→ 拿出來問使用者要不要建立 */
+function maybeArbitraryHead(ln){
+  if(/^[#＃]/.test(ln)) return null;
+  if(/^(備註|說明|注意|附註)/.test(ln)) return null;
+  if(isWordLine(ln)) return null;
+  const t = halfWidth(ln).replace(/[：:]\s*$/, "").trim();
+  if(!t || t.length > 16) return null;
+  if(t.split(/\s+/).length > 3) return null;
+  return t;
+}
+/* 解析貼上的清單（兩階段）：
+   ① 先掃出所有候選標題
+      - 完全等於現有分級名稱（任意文字）
+      - 行首像「單位＋數字」（L1／核13／單元二／Unit 9／Chapter 3）
+      - 其他短短的一行、又不像單字 → 也當候選（留給任意文字的標題）
+   ② 再逐行分類：標題切換分級，其餘當單字 */
+function parsePaste(txt){
+  const raw = String(txt||"").split(/\r?\n/);
+  const cand = {}, candName = {};
+  for(let k=0;k<raw.length;k++){
+    const ln = raw[k].replace(/^\s+|\s+$/g, "");
+    if(!ln) continue;
+    let name = headName(ln);
+    if(name === null) name = maybeArbitraryHead(ln);
+    if(name === null) continue;
+    cand[k] = name;
+    candName[name] = 1;
+  }
+  const unknown = [];
+  for(const nm in candName){ if(lvByName(nm) < 0) unknown.push({name:nm}); }
+  unknown.sort(function(a,b){ return a.name.localeCompare(b.name); });
+  const rows = [], bad = [], heads = [];
+  let curName = null, curLv = -1;
+  for(let k=0;k<raw.length;k++){
+    let ln = raw[k].replace(/^\s+|\s+$/g, "");
+    if(!ln) continue;
+    if(cand[k] !== undefined){
+      curName = cand[k]; curLv = lvByName(curName);
+      if(heads.indexOf(curName) < 0) heads.push(curName);
+      continue;
+    }
+    if(/^[#＃]/.test(ln) || /^(備註|說明|注意|附註)/.test(ln)) continue;
+    let e = "", z = "";
+    const tab = ln.indexOf("\t");
+    if(tab >= 0){ e = ln.slice(0,tab).trim(); z = ln.slice(tab+1).trim(); }
+    else {
+      const m = ln.search(/[\u4e00-\u9fff\uff08\uff09]/);
+      if(m > 0){ e = ln.slice(0,m).trim(); z = ln.slice(m).trim(); }
+    }
+    if(!e || !z){ bad.push({line:k+1, text:ln}); continue; }
+    rows.push({w:e, z:z, h:curName, lv:curLv, line:k+1});
+  }
+  return {rows:rows, unknown:unknown, bad:bad, heads:heads};
+}
+/* 相容用：只回單字列 */
+function parseLines(txt){
+  return parsePaste(txt).rows.map(function(r){ return {w:r.w, z:r.z, lv:(r.lv >= 1 ? r.lv : null)}; });
+}
+function viewBatch(){
+  let h = header("批次匯入", "一行一個字，貼上即可", "manage");
+  h += '<div class="card"><div class="flab" style="margin-top:0">貼上清單</div>'+
+       '<div style="font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:8px">'+
+       '英文與中文之間用空白或 Tab 隔開，例如：<code>employ 僱用</code><br>'+
+       '<b>寫上「L1」「核13」這類標題，下面的字就會自動歸到那一級。</b><br>'+
+       '一個標題會一直管到出現下一個標題為止。<br>'+
+       '完全沒寫標題的字，會歸到下面選的那一級。<br>'+
+       '分級名稱可以是<b>任意文字</b>（動物篇、第一章…都行），到「分級管理」建立後，貼上同名標題就會歸位。<br>'+
+       '標題是<b>還沒建立過的分級</b>時，會問你要不要順便建立。<br>'+
+       '同一個字再貼一次（釋義或分級有變）會自動更新，不會重複。</div>'+
+       '<textarea id="batchIn" rows="10" placeholder="employ 僱用&#10;suffer 受苦&#10;terminal 末期的">'+esc(batchText)+'</textarea>'+
+       '<div class="flab">完全沒標題的字要放進哪個分級</div><div class="chips">';
+  for(let k=0;k<LEVELS.length;k++){
+    const lv=LEVELS[k];
+    h += '<button class="chip'+(batchLv===lv?' on':'')+'" data-lvbatch="'+lv+'">'+esc(lvName(lv))+'</button>';
+  }
+  h += '</div></div>';
+  h += '<button class="btn primary" data-act="doBatch">匯入</button>';
+  h += '<button class="btn ghost" data-go="manage">取消</button>';
+  return h;
+}
+function doBatch(){
+  const t = document.getElementById("batchIn");
+  batchText = t ? t.value : "";
+  const P = parsePaste(batchText);
+  if(!P.rows.length && !P.unknown.length && !P.bad.length){
+    alert("沒有讀到可匯入的單字。\n請確認每一行都是「英文 中文」的格式。"); return;
+  }
+  /* ① 沒建立過的分級 → 問要不要順便建立 */
+  const madeNames = [];
+  if(P.unknown.length){
+    const names = P.unknown.map(function(u){ return u.name; });
+    if(confirm("貼文裡有這些還沒建立的分級：\n　" + names.join("、") +
+               "\n\n要現在建立嗎？\n（按「取消」＝這些行會被當成一般文字略過，底下選的那一級只給完全沒標題的字）")){
+      for(let k=0;k<names.length;k++){
+        const nv = addLevel(names[k]);
+        if(S.set.range.indexOf(nv) < 0) S.set.range.push(nv);
+        madeNames.push(names[k]);
+      }
+      S.set.range.sort(function(a,b){ return a-b; });
+      for(let k=0;k<P.rows.length;k++){
+        if(P.rows[k].h !== null) P.rows[k].lv = lvByName(P.rows[k].h);
+      }
+    }else{
+      /* 不建立 → 這些標題行視為看不懂，列出來讓使用者知道 */
+      for(let k=0;k<P.unknown.length;k++) P.bad.push({line:0, text:P.unknown[k].name});
+    }
+  }
+  /* ② 逐列比對：新增／更新／略過 */
+  const plan = [], per = {}, fresh = {};
+  let noHead = 0, skip = 0, upd = 0;
+  for(let k=0;k<LEVELS.length;k++){ per[LEVELS[k]] = 0; fresh[LEVELS[k]] = 0; }
+  for(let k=0;k<P.rows.length;k++){
+    const row = P.rows[k];
+    let lv = (row.h === null) ? batchLv : (row.lv >= 1 ? row.lv : batchLv);
+    if(lv < 1 || lv > LEVELS.length) lv = LEVELS[0];
+    if(row.h === null) noHead++;
+    per[lv] = (per[lv]||0) + 1;
+    const lw = row.w.toLowerCase();
+    let inPlan = -1, inWords = -1;
+    for(let j=0;j<plan.length;j++){ if(plan[j].w.toLowerCase() === lw){ inPlan = j; break; } }
+    for(let j=0;j<WORDS.length;j++){ if(WORDS[j].w.toLowerCase() === lw){ inWords = j; break; } }
+    if(inPlan >= 0){ skip++; continue; }
+    if(inWords >= 0){
+      const cur = WORDS[inWords];
+      if(cur.z === row.z && cur.lv === lv){ skip++; continue; }
+      plan.push({w:row.w, z:row.z, lv:lv, id:cur.id, update:true});
+      upd++;
+    }else{
+      plan.push({w:row.w, z:row.z, lv:lv, id:null, update:false});
+    }
+    fresh[lv] = (fresh[lv]||0) + 1;
+  }
+  const addN = plan.length - upd;
+  if(!plan.length && !madeNames.length){
+    alert("這些字都已經有了，不需要匯入。" + (P.bad.length ? ("\n（另有 " + P.bad.length + " 行看不懂，已略過）") : "")); return;
+  }
+  /* ③ 確認 */
+  let msg = "";
+  if(madeNames.length) msg += "新建立分級：" + madeNames.join("、") + "\n\n";
+  msg += "偵測到的分級：\n";
+  for(let k=0;k<LEVELS.length;k++){
+    const lv = LEVELS[k];
+    if(!per[lv]) continue;
+    msg += "　" + lvName(lv) + "：" + per[lv] + " 個";
+    if(fresh[lv] !== per[lv]) msg += "（變更 " + fresh[lv] + "）";
+    msg += "\n";
+  }
+  if(noHead) msg += "　沒有標題的 " + noHead + " 個 → 歸到 " + lvName(batchLv) + "\n";
+  msg += "\n新增 " + addN + " 個";
+  if(upd) msg += "、更新 " + upd + " 個（釋義或分級有變）";
+  if(skip) msg += "、略過重複 " + skip + " 個";
+  msg += "。";
+  if(P.bad.length){
+    msg += "\n\n有 " + P.bad.length + " 行看不懂，會略過：\n";
+    for(let k=0;k<Math.min(P.bad.length,4);k++) msg += "　第" + P.bad[k].line + "行：" + P.bad[k].text.slice(0,20) + "\n";
+    if(P.bad.length > 4) msg += "　…還有 " + (P.bad.length-4) + " 行\n";
+    if(P.bad.some(function(x){ return x.solo; })) msg += "（若那些是你要的分級標題，請先到「分級管理」建立同名分級）\n";
+  }
+  msg += "\n要匯入嗎？";
+  if(!confirm(msg)) return;
+  /* ④ 套用 */
+  for(let k=0;k<plan.length;k++){
+    const it = plan[k];
+    if(it.update) S.edit[it.id] = {w:it.w, z:it.z, lv:it.lv};
+    else S.custom.push({id:newId(), w:it.w, z:it.z, lv:it.lv});
+  }
+  rebuild(); save();
+  cardState.order=[]; quizState.qs=[]; spellState.qs=[];
+  batchText = "";
+  let done = "匯入完成：新增 " + addN + " 個";
+  if(upd) done += "、更新 " + upd + " 個";
+  if(skip) done += "、略過 " + skip + " 個";
+  done += "。\n目前共 " + TOTAL + " 字、" + LEVELS.length + " 個分級。";
+  alert(done);
+  go("manage");
+}
+
+/* ---------- 匯出／匯入備份 ---------- */
+function backupObj(){
+  return {app:"vocab_high_en", ver:3, when:new Date().toISOString(),
+          learned:S.learned, wrong:S.wrong, q:S.q, right:S.right, last:S.last,
+          set:S.set, custom:S.custom, edit:S.edit, del:S.del, levels:S.levels};
+}
+function exportData(){
+  const txt = JSON.stringify(backupObj());
+  const name = "單字備份_" + (new Date().toISOString().slice(0,10)) + ".json";
+  try{
+    const blob = new Blob([txt], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 400);
+  }catch(e){}
+  /* iPhone 也可以直接複製下面這串（存到備忘錄或傳給自己） */
+  const box = document.getElementById("bkOut");
+  if(box){ box.value = txt; box.style.display = "block"; }
+  setTimeout(function(){
+    const b3 = document.getElementById("bkHint");
+    if(b3) b3.style.display = "block";
+  }, 300);
+}
+function importData(){
+  let h = header("匯入備份", "貼上先前匯出的內容，或選擇檔案", "manage");
+  h += '<div class="card"><div class="flab" style="margin-top:0">選擇檔案</div>'+
+       '<input type="file" id="bkFile" accept=".json,application/json" style="width:100%;font-size:14px;padding:8px 0">'+
+       '<div class="flab">或直接貼上內容</div>'+
+       '<textarea id="bkIn" rows="8" placeholder="貼上備份的 JSON 內容"></textarea></div>';
+  h += '<button class="btn primary" data-act="doImport">開始匯入</button>';
+  h += '<button class="btn ghost" data-go="manage">取消</button>';
+  h += '<div class="tipline" style="text-align:left;margin-top:10px">匯入會<b>覆蓋</b>目前的進度與自訂單字。</div>';
+  app.innerHTML = h; bind();
+  const f = document.getElementById("bkFile");
+  if(f) f.addEventListener("change", function(){
+    const file = f.files && f.files[0]; if(!file) return;
+    const r = new FileReader();
+    r.onload = function(){ const t2 = document.getElementById("bkIn"); if(t2) t2.value = String(r.result||""); };
+    r.readAsText(file);
+  });
+  const btn = document.querySelector('[data-act="doImport"]');
+  if(btn) btn.addEventListener("click", doImport);
+}
+function doImport(){
+  const el = document.getElementById("bkIn");
+  const txt = el ? el.value : "";
+  let o = null;
+  try{ o = JSON.parse(txt); }catch(e){ alert("這段內容不是有效的備份檔。"); return; }
+  if(!o || typeof o !== "object"){ alert("這段內容不是有效的備份檔。"); return; }
+  if(!confirm("確定匯入？目前的進度與自訂單字會被覆蓋。")) return;
+  const keepSet = S.set;
+  /* 借用同一套載入邏輯：把備份內容當成一份存檔來讀 */
+  const bkp = o.levels;
+  o.levels = (Array.isArray(bkp) && bkp.length) ? bkp : S.levels.slice();
+  if(!o.set || typeof o.set !== "object") o.set = keepSet;
+  S = load2(o);
+  syncLevels();
+  rebuild(); save();
+  cardState.order=[]; quizState.qs=[]; spellState.qs=[];
+  alert("匯入完成：目前共 "+TOTAL+" 字、"+LEVELS.length+" 個分級。");
+  go("home");
+}
+
+/* ---------- 儲存空間 ---------- */
+function showStore(){
+  const box = document.getElementById("storeBox"); if(!box) return;
+  if(!navigator.storage || !navigator.storage.estimate){ box.innerHTML = "這台裝置的瀏覽器不支援儲存空間查詢。"; return; }
+  navigator.storage.estimate().then(function(est){
+    const used = est.usage || 0, quota = est.quota || 0;
+    let line = "已使用 " + fmtBytes(used) + (quota ? ("／可用約 " + fmtBytes(quota)) : "");
+    if(navigator.storage.persisted){
+      navigator.storage.persisted().then(function(p){
+        box.innerHTML = line + "<br>永久儲存：" + (p ? "✅ 已開啟" : "未開啟（可能被系統自動清理）");
+      }).catch(function(){ box.innerHTML = line; });
+    }else box.innerHTML = line;
+  }).catch(function(){ box.innerHTML = "查不到儲存空間資訊。"; });
+}
+function fmtBytes(n){
+  if(n < 1024) return n + " B";
+  if(n < 1048576) return (n/1024).toFixed(1) + " KB";
+  return (n/1048576).toFixed(2) + " MB";
+}
+function askPersist(){
+  if(!navigator.storage || !navigator.storage.persist){ alert("這台裝置的瀏覽器不支援永久儲存要求。\niPhone 請改用「加到主畫面」。"); return; }
+  navigator.storage.persist().then(function(p){
+    alert(p ? "已開啟永久儲存 ✅\n瀏覽器不會自動清理這裡的資料。"
+            : "這台瀏覽器沒有同意。\niPhone 建議改用「加到主畫面」，可豁免七天清理規則。");
+    showStore();
+  }).catch(function(){ alert("要求失敗，請改用「加到主畫面」。"); });
 }
 
 /* ================= 事件綁定 ================= */
@@ -874,17 +1641,28 @@ function bind(){
       else if(a==="testSfx"){ unlockMedia(); SET.sfx=true; sfx("right",3); setTimeout(function(){ sfx("wrong"); }, 700); }
       else if(a==="testSpeak"){ unlockMedia(); speak("employ"); }
       else if(a==="wrongCards"){
-        cardState.order = shuffle(S.wrong.slice());
+        cardState.order = shuffle(wrongIdx());
         cardState.pos = 0; cardState.flipped=false;
-        cardState.base = S.wrong.slice(); cardState.tag = "wrong";
+        cardState.base = wrongIdx(); cardState.tag = "wrong";
         go("card");
       }
-      else if(a==="delWrong"){ delWrong(parseInt(el.getAttribute("data-i"),10)); save(); render(); }
+      else if(a==="delWrong"){ delWrongId(el.getAttribute("data-id")); save(); render(); }
+      else if(a==="hideIosTip"){ try{ localStorage.setItem("vocab_ios_tip_off","1"); }catch(e2){} render(); }
+      else if(a==="newWord"){ editState = {mode:"add", id:"", w:"", z:"", lv:(S.set.range[0]||1)}; go("edit"); }
+      else if(a==="batchWord"){ batchLv = (S.set.range[0]||1); go("batch"); }
+      else if(a==="saveWord"){ saveWord(); }
+      else if(a==="doBatch"){ doBatch(); }
+      else if(a==="exportData"){ exportData(); }
+      else if(a==="importData"){ importData(); }
+      else if(a==="askPersist"){ askPersist(); }
+      else if(a==="addLevel"){ addLevelFlow(); }
       else if(a==="resetWrong"){ if(confirm("確定清空錯題本？")){ S.wrong=[]; save(); render(); } }
       else if(a==="resetAll"){
-        if(confirm("確定全部重置？學會紀錄與錯題都會歸零。")){
-          const keep = S.set;
-          S = JSON.parse(JSON.stringify(DEF)); S.set = keep; save();
+        if(confirm("確定全部重置？學會紀錄與錯題都會歸零。\n（自訂單字與修改不會受影響）")){
+          const keep = S.set, kc = S.custom, ke = S.edit, kd = S.del, kl = S.levels;
+          S = JSON.parse(JSON.stringify(DEF)); S.set = keep; S.custom = kc; S.edit = ke; S.del = kd;
+          S.levels = kl; syncLevels();
+          rebuild(); save();
           cardState.order=[]; quizState.qs=[]; spellState.qs=[]; spokenToken=null;
           go("home");
         }
@@ -899,6 +1677,67 @@ function bind(){
       unlockMedia();
       SET[el.getAttribute("data-set")] = el.checked;
       if(el.getAttribute("data-set")==="sfx" && el.checked) sfx("right");
+    });
+  });
+  document.querySelectorAll("[data-edit]").forEach(function(el){
+    el.addEventListener("click", function(ev){
+      ev.stopPropagation(); unlockMedia(); sfx("tap");
+      const id = el.getAttribute("data-edit");
+      const i = idxById(id); if(i<0) return;
+      editState = {mode:"edit", id:id, w:WORDS[i].w, z:WORDS[i].z, lv:WORDS[i].lv};
+      go("edit");
+    });
+  });
+  document.querySelectorAll("[data-del]").forEach(function(el){
+    el.addEventListener("click", function(ev){
+      ev.stopPropagation(); unlockMedia(); sfx("tap");
+      const id = el.getAttribute("data-del");
+      const w = wordById(id); if(!w) return;
+      if(!confirm("確定刪除「"+w.w+"」？\n（進度紀錄也會一起移除）")) return;
+      S.del.push(id);
+      const p = S.custom.findIndex(function(c){ return c.id===id; });
+      if(p>=0) S.custom.splice(p,1);
+      delete S.edit[id];
+      delWrongId(id);
+      const lk = S.learned.indexOf(id); if(lk>=0) S.learned.splice(lk,1);
+      rebuild(); save();
+      cardState.order=[]; quizState.qs=[]; spellState.qs=[];
+      render();
+    });
+  });
+  document.querySelectorAll("[data-lvrename]").forEach(function(el){
+    el.addEventListener("click", function(ev){
+      ev.stopPropagation(); sfx("tap");
+      renameLevelFlow(parseInt(el.getAttribute("data-lvrename"),10));
+    });
+  });
+  document.querySelectorAll("[data-lvdel]").forEach(function(el){
+    el.addEventListener("click", function(ev){
+      ev.stopPropagation(); sfx("tap");
+      delLevelFlow(parseInt(el.getAttribute("data-lvdel"),10));
+    });
+  });
+  document.querySelectorAll("[data-mgf]").forEach(function(el){
+    el.addEventListener("click", function(ev){
+      ev.stopPropagation(); sfx("tap");
+      mgFilter = parseInt(el.getAttribute("data-mgf"),10) || 0;
+      render();
+    });
+  });
+  document.querySelectorAll("[data-lvedit]").forEach(function(el){
+    el.addEventListener("click", function(ev){
+      ev.stopPropagation(); sfx("tap");
+      readEditInputs();
+      editState.lv = parseInt(el.getAttribute("data-lvedit"),10);
+      render();
+    });
+  });
+  document.querySelectorAll("[data-lvbatch]").forEach(function(el){
+    el.addEventListener("click", function(ev){
+      ev.stopPropagation(); sfx("tap");
+      const t = document.getElementById("batchIn"); if(t) batchText = t.value;
+      batchLv = parseInt(el.getAttribute("data-lvbatch"),10);
+      render();
     });
   });
   document.querySelectorAll("[data-lv]").forEach(function(el){
