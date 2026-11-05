@@ -117,7 +117,10 @@
     border-radius:12px;padding:12px;word-break:break-word}
   /* AI 造句填空 */
   .sent{font-size:19px;line-height:2;font-weight:600;letter-spacing:.2px}
-  .sentzh{font-size:13px;color:var(--dim);line-height:1.8;margin-top:12px}
+  .sentzh{font-size:13px;color:var(--dim);line-height:1.8;margin-top:12px;
+    border-top:1px dashed var(--line);padding-top:10px}
+  .zhrow{display:flex;align-items:center;gap:10px;margin-top:14px}
+  .zhhint{font-size:11px;color:#5d6484}
   .blk{display:inline-block;min-width:44px;text-align:center;color:var(--accent);font-weight:900;
     border-bottom:2px solid var(--accent);padding:0 6px;margin:0 2px}
   .blk .dots{letter-spacing:2px}
@@ -1059,7 +1062,7 @@ function viewList(){
         → 句子裡的那個字挖空，只露頭尾字母 → 使用者把字拼回來
    金鑰不放進檔案，存在這台裝置的瀏覽器裡（設定頁填一次）。 */
 let aiState = {qs:[], pos:0, word:null, sent:"", zh:"", loading:false, err:"", checked:false, ok:null,
-               right:0, streak:0, best:0, typed:"", pool:null, ptag:"", cache:{}};
+               right:0, streak:0, best:0, typed:"", pool:null, ptag:"", cache:{}, revealZh:false};
 
 /* 只挑「單一個英文字」的單字（pass on…to…、make a difference 這種片語先排除，AI 造句時容易出錯） */
 function aiCandidates(pool){
@@ -1072,7 +1075,7 @@ function buildAI(pool, tag){
   shuffle(cand);
   aiState = {qs:cand.slice(0, Math.min(10, cand.length)), pos:0, word:null, sent:"", zh:"",
              loading:false, err:"", checked:false, ok:null, right:0, streak:0, best:0, typed:"",
-             pool:pool||null, ptag:tag||"", cache:{}};
+             pool:pool||null, ptag:tag||"", cache:{}, revealZh:false};
   lastRun = {type:"ai", mode:"ai", pool:pool||null, tag:tag||""};
 }
 
@@ -1089,18 +1092,23 @@ async function callSentence(w){
   }catch(e){
     throw {kind: (location.protocol === "file:") ? "file" : "net"};
   }
+  const raw = await res.text();
   let data = null;
-  try{ data = await res.json(); }catch(e){}
+  try{ data = JSON.parse(raw); }catch(e){}
   if(!res.ok){
-    const msg = (data && (data.error || data.detail)) ? String(data.error || data.detail) : "";
+    /* 伺服器回的可能是 JSON，也可能是 Vercel 的當機頁（HTML）→ 兩種都要把原話留下來 */
+    const msg = (data && (data.error || data.detail))
+      ? String(data.error || "") + (data.detail ? "（" + String(data.detail).slice(0,160) + "）" : "")
+      : String(raw || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 180);
     if(res.status === 401) throw {kind:"auth", msg:msg};
     if(res.status === 429) throw {kind:"limit", msg:msg};
     if(res.status === 404) throw {kind:"nocall", msg:msg};
     if(res.status === 500 && /GROQ_API_KEY/.test(msg)) throw {kind:"env", msg:msg};
+    if(res.status === 500 && /模型/.test(msg)) throw {kind:"model", msg:msg};
     if(res.status === 502 && /沒把指定單字寫進句子|沒有出現/.test(msg)) throw {kind:"noverb", msg:msg};
     throw {kind:"http", status:res.status, msg:msg};
   }
-  if(!data || !data.sentence) throw {kind:"badjson", msg:JSON.stringify(data||{}).slice(0,200)};
+  if(!data || !data.sentence) throw {kind:"badjson", msg:String(raw||"").slice(0,200)};
   return {sentence:String(data.sentence).trim(), zh:String(data.zh||"").trim()};
 }
 
@@ -1138,7 +1146,8 @@ function aiErrText(e){
   if(e.kind === "net")    return "連不上伺服器。檢查一下這台裝置的網路。";
   if(e.kind === "noverb") return "AI 這次沒把指定單字寫進句子。按「重新出題」換一句就好。";
   if(e.kind === "badjson") return "AI 回傳的格式怪怪的，再按一次「重新出題」通常就好。";
-  return "出題失敗（" + (e.status || "?") + "）。再試一次；一直失敗就到設定頁按「測試 AI 後端」看是哪一段出問題。";
+  if(e.kind === "model")  return "後端叫不到可用的模型：" + (e.msg || "");
+  return "出題失敗（" + (e.status || "?") + "）。" + (e.msg ? "伺服器說：" + e.msg : "伺服器沒回內容，按「測試 AI 後端」看細節。");
 }
 
 /* 先偷偷把下一句準備好，換題時就不用等 */
@@ -1164,7 +1173,7 @@ async function aiLoad(i){
   aiState.pos = i;
   aiState.word = WORDS[aiState.qs[i]];
   aiState.sent = ""; aiState.zh = ""; aiState.checked = false; aiState.ok = null;
-  aiState.typed = ""; aiState.err = "";
+  aiState.typed = ""; aiState.err = ""; aiState.revealZh = false;
   const run = aiState;
   let got = aiState.cache[i] || null, lastErr = null;
   if(got){ aiState.sent = got.sentence; aiState.zh = got.zh; aiState.loading = false; render(); aiFocus(); aiWarm(i+1); return; }
@@ -1186,6 +1195,8 @@ async function aiLoad(i){
 }
 
 function aiFocus(){ const el = document.getElementById("aiIn"); if(el) el.focus(); }
+/* 重繪前先把輸入框現在打的字收進來（不然按「看中文提示」會把打到一半的字洗掉） */
+function aiSyncTyped(){ const el = document.getElementById("aiIn"); if(el) aiState.typed = el.value; }
 
 function viewAI(){
   if(aiState.qs.length && !aiState.sent && !aiState.loading && !aiState.err && !aiState.checked) aiLoad(aiState.pos);
@@ -1217,8 +1228,17 @@ function viewAI(){
     ? (filledOf(aiState.sent, w.w, aiState.ok) || esc(aiState.sent))
     : (blankOf(aiState.sent, w.w) || esc(aiState.sent));
   h += '<div class="qbox" style="text-align:left;padding:20px 18px"><div class="qtag">把空格裡的單字拼回來</div>' +
-       '<div class="sent">' + sentHtml + '</div>' +
-       (aiState.zh ? '<div class="sentzh">' + esc(aiState.zh) + '</div>' : '') + '</div>';
+       '<div class="sent">' + sentHtml + '</div>';
+  if(aiState.zh){
+    if(aiState.revealZh){
+      h += '<div class="sentzh">' + esc(aiState.zh) + '</div>' +
+           '<div class="zhrow"><button class="mini" data-act="toggleZh">收起中文提示</button></div>';
+    }else{
+      h += '<div class="zhrow"><button class="mini" data-act="toggleZh">🔍 看中文提示</button>' +
+           '<span class="zhhint">想不出來再看</span></div>';
+    }
+  }
+  h += '</div>';
   h += '<div class="inputwrap"><input type="text" id="aiIn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="打英文單字" value="' + esc(aiState.typed||"") + '"></div>';
   if(aiState.checked){
     h += '<div class="fbline ' + (aiState.ok?"ok":"no") + '">' + (aiState.ok ? "✅ 拼對了！" : "❌ 不對喔") + '</div>' +
@@ -1247,6 +1267,7 @@ function checkAI(){
   const norm = String(typed).trim().toLowerCase().replace(/\s+/g, " ");
   const ok = (norm === target);
   aiState.checked = true; aiState.ok = ok;
+  aiState.revealZh = true;          /* 答完就把中文露出來，順便對照意思 */
   S.q++;
   const i = aiState.qs[aiState.pos];
   if(ok){ S.right++; aiState.right++; aiState.streak++; if(aiState.streak>aiState.best) aiState.best=aiState.streak; markLearned(i); delWrong(i); }
@@ -1323,6 +1344,11 @@ function bind(){
       }
       else if(a==="checkSpell") checkSpell();
       else if(a==="checkAI") checkAI();
+      else if(a==="toggleZh"){
+        aiSyncTyped();
+        aiState.revealZh = !aiState.revealZh;
+        sfx("tap"); render(); aiFocus();
+      }
       else if(a==="nextAI") nextAI();
       else if(a==="skipAI"){ addWrong(aiState.qs[aiState.pos]); S.q++; save(); nextAI(); }
       else if(a==="retryAI"){ aiLoad(aiState.pos); }
