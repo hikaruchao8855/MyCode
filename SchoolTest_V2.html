@@ -132,8 +132,10 @@
   .chips{display:flex;gap:8px;flex-wrap:wrap}
   .chip{flex:0 0 calc(25% - 6px);min-width:74px;min-height:58px;border-radius:14px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);
     font-size:17px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px}
+  .chip .nm{white-space:nowrap}
   .chip .n{font-size:11px;color:var(--dim);font-weight:400}
   .chip.on{background:linear-gradient(180deg,#4460c8,#3a51ae);border-color:#5a76dd}
+  .chip.wide .nm{font-size:14px;letter-spacing:-0.3px}
   .chip.on .n{color:#dfe6ff}
   .chip:active{transform:scale(.97)}
   .grp{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;font-weight:800;
@@ -145,7 +147,7 @@
 <div id="app"></div>
 
 <script>
-/* ================= 單字資料：來源＝主人原稿（L1～L4＋核13～核15），釋義與標點照原稿 =================
+/* ================= 單字資料：來源＝主人原稿（L1～L6＋核13～核15、核16、核17～19），釋義與標點照原稿 =================
    寫死版：單字就住在這個檔案裡，程式沒有新增／修改／刪除單字的介面。
    要加字照下面的格式貼上就好（w＝英文、z＝中文、lv＝分級編號）。 */
 const WORDS = [
@@ -274,149 +276,377 @@ const WORDS = [
   {w:"await", z:"等待", lv:4},
   {w:"escape", z:"避免，逃脫", lv:4},
 
+  /* L5（37 字） */
+  {w:"blossom", z:"花朵；開花", lv:5},
+  {w:"rustle", z:"沙沙作響", lv:5},
+  {w:"landscape", z:"景色；風景", lv:5},
+  {w:"splendor", z:"壯麗；雄偉", lv:5},
+  {w:"splendid", z:"非常好的", lv:5},
+  {w:"previously", z:"先前地", lv:5},
+  {w:"previous", z:"先前地", lv:5},
+  {w:"capital", z:"首都；資本；資金", lv:5},
+  {w:"boast", z:"以…為傲；擁有", lv:5},
+  {w:"historic", z:"歷史悠久的；歷史上著名的", lv:5},
+  {w:"historical", z:"歷史的", lv:5},
+  {w:"historian", z:"歷史學家", lv:5},
+  {w:"entrance", z:"大門；入口", lv:5},
+  {w:"magnificent", z:"壯麗的；雄偉的", lv:5},
+  {w:"breathtaking", z:"驚人的", lv:5},
+  {w:"leisurely", z:"悠閒的", lv:5},
+  {w:"leisure", z:"閒暇", lv:5},
+  {w:"stunning", z:"撼動人心的；令人驚訝的", lv:5},
+  {w:"stun", z:"使…驚訝", lv:5},
+  {w:"delicate", z:"精美的", lv:5},
+  {w:"delicacy", z:"纖細；精美", lv:5},
+  {w:"distinctive", z:"獨特的", lv:5},
+  {w:"distinction", z:"差別", lv:5},
+  {w:"distinct", z:"顯著的；明顯的", lv:5},
+  {w:"elegant", z:"雅致的", lv:5},
+  {w:"elegance", z:"優雅", lv:5},
+  {w:"appearance", z:"外表", lv:5},
+  {w:"appear", z:"出現", lv:5},
+  {w:"literature", z:"文學", lv:5},
+  {w:"literary", z:"文學的", lv:5},
+  {w:"deliberate", z:"小心翼翼的", lv:5},
+  {w:"destination", z:"目的地", lv:5},
+  {w:"turn…into…", z:"變為", lv:5},
+  {w:"feast one’s eyes on", z:"使人目不暇給", lv:5},
+  {w:"face to face", z:"面對面", lv:5},
+  {w:"stand out", z:"顯眼", lv:5},
+  {w:"fall in love with", z:"愛上", lv:5},
+
+  /* L6（42 字） */
+  {w:"slope", z:"斜坡", lv:6},
+  {w:"tumble", z:"滾落", lv:6},
+  {w:"bruised", z:"瘀傷的", lv:6},
+  {w:"bruise", z:"撞傷", lv:6},
+  {w:"superior", z:"優於；上司", lv:6},
+  {w:"superiority", z:"優勢", lv:6},
+  {w:"intimately", z:"密切的；了如指掌的", lv:6},
+  {w:"intimate", z:"密切的；親密的", lv:6},
+  {w:"intimacy", z:"密切；親密", lv:6},
+  {w:"skillfully", z:"熟練的", lv:6},
+  {w:"skillfull", z:"熟練的", lv:6},
+  {w:"crop", z:"作物；莊稼", lv:6},
+  {w:"path", z:"小路", lv:6},
+  {w:"navigate", z:"行走", lv:6},
+  {w:"navigation", z:"導航", lv:6},
+  {w:"outsider", z:"外人", lv:6},
+  {w:"adapt", z:"適應", lv:6},
+  {w:"adaptation", z:"適應", lv:6},
+  {w:"cling", z:"抓緊", lv:6},
+  {w:"twinkle", z:"閃耀", lv:6},
+  {w:"pity", z:"同情", lv:6},
+  {w:"awe", z:"敬畏", lv:6},
+  {w:"smoothness", z:"平滑", lv:6},
+  {w:"smooth", z:"平滑的", lv:6},
+  {w:"opposition", z:"反對", lv:6},
+  {w:"oppose", z:"反對", lv:6},
+  {w:"peculiar", z:"奇怪的", lv:6},
+  {w:"confront", z:"面對", lv:6},
+  {w:"confrontation", z:"衝突", lv:6},
+  {w:"dilemma", z:"進退兩難的困境", lv:6},
+  {w:"nevertheless", z:"然而", lv:6},
+  {w:"gaze", z:"凝視", lv:6},
+  {w:"envision", z:"想像", lv:6},
+  {w:"flee", z:"逃離；逃跑", lv:6},
+  {w:"set off", z:"出發", lv:6},
+  {w:"come upon", z:"偶然遇到", lv:6},
+  {w:"care for", z:"照顧", lv:6},
+  {w:"cling to", z:"堅持", lv:6},
+  {w:"lay eyes on", z:"看見", lv:6},
+  {w:"worst of all", z:"最糟的是", lv:6},
+  {w:"in return(for)", z:"作為…的回報", lv:6},
+  {w:"for somebody’s sake/for the sake of somebody", z:"為了某人", lv:6},
+
   /* 核13（33 字） */
-  {w:"cast", z:"扔；擲；演員陣容；石膏", lv:5},
-  {w:"squeeze", z:"擠；壓；緊握；壓榨", lv:5},
-  {w:"award", z:"獎品；授予；給予", lv:5},
-  {w:"drip", z:"滴下；滴水聲", lv:5},
-  {w:"journey", z:"旅行", lv:5},
-  {w:"client", z:"客戶", lv:5},
-  {w:"precious", z:"珍貴的", lv:5},
-  {w:"jet", z:"噴射機；搭飛機旅行；噴出", lv:5},
-  {w:"mystery", z:"神秘；神秘難解的事物", lv:5},
-  {w:"mankind", z:"人類", lv:5},
-  {w:"campus", z:"（大學）校園", lv:5},
-  {w:"scream", z:"發出尖叫聲；尖叫", lv:5},
-  {w:"harm", z:"傷害", lv:5},
-  {w:"budget", z:"預算；安排（開支）；規劃（時間等）", lv:5},
-  {w:"flame", z:"火焰；燃燒", lv:5},
-  {w:"wipe", z:"擦拭；消滅；抹", lv:5},
-  {w:"angel", z:"天使", lv:5},
-  {w:"barrel", z:"大桶；槍枝的槍管", lv:5},
-  {w:"clue", z:"線索；端倪；頭緒", lv:5},
-  {w:"eager", z:"渴望的", lv:5},
-  {w:"spin", z:"紡紗；編造（故事）；旋轉", lv:5},
-  {w:"romantic", z:"不切實際的；浪漫的；浪漫主義者", lv:5},
-  {w:"passion", z:"熱情；熱愛", lv:5},
-  {w:"adventure", z:"冒險；奇遇", lv:5},
-  {w:"studio", z:"播音室；工作室；攝影棚", lv:5},
-  {w:"verse", z:"韻文；詩", lv:5},
-  {w:"bride", z:"新娘", lv:5},
-  {w:"bore", z:"使厭煩", lv:5},
-  {w:"presence", z:"出席；在場", lv:5},
-  {w:"doughnut", z:"甜甜圈", lv:5},
-  {w:"rush", z:"衝；匆促行動", lv:5},
-  {w:"bitter", z:"苦的", lv:5},
-  {w:"bookcase", z:"書櫃", lv:5},
+  {w:"cast", z:"扔；擲；演員陣容；石膏", lv:7},
+  {w:"squeeze", z:"擠；壓；緊握；壓榨", lv:7},
+  {w:"award", z:"獎品；授予；給予", lv:7},
+  {w:"drip", z:"滴下；滴水聲", lv:7},
+  {w:"journey", z:"旅行", lv:7},
+  {w:"client", z:"客戶", lv:7},
+  {w:"precious", z:"珍貴的", lv:7},
+  {w:"jet", z:"噴射機；搭飛機旅行；噴出", lv:7},
+  {w:"mystery", z:"神秘；神秘難解的事物", lv:7},
+  {w:"mankind", z:"人類", lv:7},
+  {w:"campus", z:"（大學）校園", lv:7},
+  {w:"scream", z:"發出尖叫聲；尖叫", lv:7},
+  {w:"harm", z:"傷害", lv:7},
+  {w:"budget", z:"預算；安排（開支）；規劃（時間等）", lv:7},
+  {w:"flame", z:"火焰；燃燒", lv:7},
+  {w:"wipe", z:"擦拭；消滅；抹", lv:7},
+  {w:"angel", z:"天使", lv:7},
+  {w:"barrel", z:"大桶；槍枝的槍管", lv:7},
+  {w:"clue", z:"線索；端倪；頭緒", lv:7},
+  {w:"eager", z:"渴望的", lv:7},
+  {w:"spin", z:"紡紗；編造（故事）；旋轉", lv:7},
+  {w:"romantic", z:"不切實際的；浪漫的；浪漫主義者", lv:7},
+  {w:"passion", z:"熱情；熱愛", lv:7},
+  {w:"adventure", z:"冒險；奇遇", lv:7},
+  {w:"studio", z:"播音室；工作室；攝影棚", lv:7},
+  {w:"verse", z:"韻文；詩", lv:7},
+  {w:"bride", z:"新娘", lv:7},
+  {w:"bore", z:"使厭煩", lv:7},
+  {w:"presence", z:"出席；在場", lv:7},
+  {w:"doughnut", z:"甜甜圈", lv:7},
+  {w:"rush", z:"衝；匆促行動", lv:7},
+  {w:"bitter", z:"苦的", lv:7},
+  {w:"bookcase", z:"書櫃", lv:7},
 
   /* 核14（26 字） */
-  {w:"swear", z:"發誓；說髒話", lv:6},
-  {w:"parade", z:"遊行", lv:6},
-  {w:"cigarette", z:"香菸", lv:6},
-  {w:"plastic", z:"塑膠；塑膠的", lv:6},
-  {w:"float", z:"漂浮；浮板", lv:6},
-  {w:"pole", z:"極，磁極；竿子", lv:6},
-  {w:"casual", z:"偶然的；無心的；非正式的（指服裝）", lv:6},
-  {w:"doubtful", z:"起疑的；可疑的", lv:6},
-  {w:"stuff", z:"東西；塞滿", lv:6},
-  {w:"bare", z:"空的；赤裸的；露出", lv:6},
-  {w:"tourist", z:"觀光客；遊客；觀光的", lv:6},
-  {w:"leap", z:"跳躍；跳", lv:6},
-  {w:"fade", z:"褪色；漸弱", lv:6},
-  {w:"cabin", z:"（在森林或山中搭建的）小木屋；船艙；機艙", lv:6},
-  {w:"powder", z:"粉末；灑粉", lv:6},
-  {w:"deck", z:"甲板", lv:6},
-  {w:"limb", z:"四肢之一", lv:6},
-  {w:"mayor", z:"市長", lv:6},
-  {w:"disk", z:"光碟片", lv:6},
-  {w:"strategy", z:"策略；謀略", lv:6},
-  {w:"crawl", z:"爬；緩慢的行進", lv:6},
-  {w:"barn", z:"穀倉", lv:6},
-  {w:"routine", z:"慣例；例行公事；例行公事的", lv:6},
-  {w:"carpet", z:"地毯；在…鋪地毯", lv:6},
-  {w:"broadcast", z:"廣播", lv:6},
-  {w:"brunch", z:"早午餐", lv:6},
+  {w:"swear", z:"發誓；說髒話", lv:8},
+  {w:"parade", z:"遊行", lv:8},
+  {w:"cigarette", z:"香菸", lv:8},
+  {w:"plastic", z:"塑膠；塑膠的", lv:8},
+  {w:"float", z:"漂浮；浮板", lv:8},
+  {w:"pole", z:"極，磁極；竿子", lv:8},
+  {w:"casual", z:"偶然的；無心的；非正式的（指服裝）", lv:8},
+  {w:"doubtful", z:"起疑的；可疑的", lv:8},
+  {w:"stuff", z:"東西；塞滿", lv:8},
+  {w:"bare", z:"空的；赤裸的；露出", lv:8},
+  {w:"tourist", z:"觀光客；遊客；觀光的", lv:8},
+  {w:"leap", z:"跳躍；跳", lv:8},
+  {w:"fade", z:"褪色；漸弱", lv:8},
+  {w:"cabin", z:"（在森林或山中搭建的）小木屋；船艙；機艙", lv:8},
+  {w:"powder", z:"粉末；灑粉", lv:8},
+  {w:"deck", z:"甲板", lv:8},
+  {w:"limb", z:"四肢之一", lv:8},
+  {w:"mayor", z:"市長", lv:8},
+  {w:"disk", z:"光碟片", lv:8},
+  {w:"strategy", z:"策略；謀略", lv:8},
+  {w:"crawl", z:"爬；緩慢的行進", lv:8},
+  {w:"barn", z:"穀倉", lv:8},
+  {w:"routine", z:"慣例；例行公事；例行公事的", lv:8},
+  {w:"carpet", z:"地毯；在…鋪地毯", lv:8},
+  {w:"broadcast", z:"廣播", lv:8},
+  {w:"brunch", z:"早午餐", lv:8},
 
   /* 核15（33 字） */
-  {w:"dislike", z:"討厭", lv:7},
-  {w:"patience", z:"耐心", lv:7},
-  {w:"bubble", z:"泡沫", lv:7},
-  {w:"mushroom", z:"蘑菇", lv:7},
-  {w:"mobile", z:"可動的；流動的", lv:7},
-  {w:"nickname", z:"綽號", lv:7},
-  {w:"vivid", z:"生動的", lv:7},
-  {w:"bury", z:"埋葬；使投入", lv:7},
-  {w:"continent", z:"大陸；洲", lv:7},
-  {w:"farther", z:"更遠地", lv:7},
-  {w:"weep", z:"流淚；哭泣", lv:7},
-  {w:"ripe", z:"成熟的", lv:7},
-  {w:"boot", z:"長靴", lv:7},
-  {w:"complain", z:"抱怨", lv:7},
-  {w:"cheek", z:"臉頰", lv:7},
-  {w:"cocktail", z:"雞尾酒", lv:7},
-  {w:"wander", z:"漫遊；閒逛", lv:7},
-  {w:"miracle", z:"奇蹟", lv:7},
-  {w:"whip", z:"鞭子", lv:7},
-  {w:"wealthy", z:"富有的", lv:7},
-  {w:"drunk", z:"酒醉的", lv:7},
-  {w:"lawn", z:"草坪", lv:7},
-  {w:"portrait", z:"肖像；畫像", lv:7},
-  {w:"marble", z:"大理石；玻璃彈珠", lv:7},
-  {w:"comma", z:"逗號", lv:7},
-  {w:"laughter", z:"笑", lv:7},
-  {w:"bless", z:"祝福；保佑", lv:7},
-  {w:"crash", z:"墜毀；毀壞", lv:7},
-  {w:"cruel", z:"殘忍的", lv:7},
-  {w:"database", z:"資料庫", lv:7},
-  {w:"grassy", z:"長滿草的", lv:7},
-  {w:"dumpling", z:"餃子", lv:7},
-  {w:"geography", z:"地理", lv:7}
+  {w:"dislike", z:"討厭", lv:9},
+  {w:"patience", z:"耐心", lv:9},
+  {w:"bubble", z:"泡沫", lv:9},
+  {w:"mushroom", z:"蘑菇", lv:9},
+  {w:"mobile", z:"可動的；流動的", lv:9},
+  {w:"nickname", z:"綽號", lv:9},
+  {w:"vivid", z:"生動的", lv:9},
+  {w:"bury", z:"埋葬；使投入", lv:9},
+  {w:"continent", z:"大陸；洲", lv:9},
+  {w:"farther", z:"更遠地", lv:9},
+  {w:"weep", z:"流淚；哭泣", lv:9},
+  {w:"ripe", z:"成熟的", lv:9},
+  {w:"boot", z:"長靴", lv:9},
+  {w:"complain", z:"抱怨", lv:9},
+  {w:"cheek", z:"臉頰", lv:9},
+  {w:"cocktail", z:"雞尾酒", lv:9},
+  {w:"wander", z:"漫遊；閒逛", lv:9},
+  {w:"miracle", z:"奇蹟", lv:9},
+  {w:"whip", z:"鞭子", lv:9},
+  {w:"wealthy", z:"富有的", lv:9},
+  {w:"drunk", z:"酒醉的", lv:9},
+  {w:"lawn", z:"草坪", lv:9},
+  {w:"portrait", z:"肖像；畫像", lv:9},
+  {w:"marble", z:"大理石；玻璃彈珠", lv:9},
+  {w:"comma", z:"逗號", lv:9},
+  {w:"laughter", z:"笑", lv:9},
+  {w:"bless", z:"祝福；保佑", lv:9},
+  {w:"crash", z:"墜毀；毀壞", lv:9},
+  {w:"cruel", z:"殘忍的", lv:9},
+  {w:"database", z:"資料庫", lv:9},
+  {w:"grassy", z:"長滿草的", lv:9},
+  {w:"dumpling", z:"餃子", lv:9},
+  {w:"geography", z:"地理", lv:9},
+
+  /* 核16（30 字） */
+  {w:"amaze", z:"使驚訝", lv:10},
+  {w:"acceptable", z:"尚可的", lv:10},
+  {w:"charm", z:"魅力", lv:10},
+  {w:"meaningful", z:"有意義的", lv:10},
+  {w:"statue", z:"雕像", lv:10},
+  {w:"living", z:"生計", lv:10},
+  {w:"communicate", z:"傳達", lv:10},
+  {w:"swell", z:"膨脹", lv:10},
+  {w:"knight", z:"騎士", lv:10},
+  {w:"gang", z:"幫派", lv:10},
+  {w:"thread", z:"線", lv:10},
+  {w:"explode", z:"爆炸", lv:10},
+  {w:"horror", z:"恐怖", lv:10},
+  {w:"gap", z:"裂縫", lv:10},
+  {w:"fountain", z:"噴泉", lv:10},
+  {w:"youngster", z:"年輕人", lv:10},
+  {w:"tap", z:"輕拍", lv:10},
+  {w:"racial", z:"種族的", lv:10},
+  {w:"summit", z:"頂點", lv:10},
+  {w:"follower", z:"信徒", lv:10},
+  {w:"traveler", z:"旅行者", lv:10},
+  {w:"champion", z:"得到冠軍者", lv:10},
+  {w:"interrupt", z:"打斷", lv:10},
+  {w:"glow", z:"光輝", lv:10},
+  {w:"twin", z:"雙胞胎之一", lv:10},
+  {w:"tight", z:"緊的", lv:10},
+  {w:"sigh", z:"嘆氣", lv:10},
+  {w:"citizen", z:"公民", lv:10},
+  {w:"holder", z:"保持者", lv:10},
+  {w:"hunger", z:"渴望", lv:10},
+
+  /* 核17～19（96 字，核17 已含核18、核19） */
+  {w:"knit", z:"針織", lv:11},
+  {w:"monk", z:"修士", lv:11},
+  {w:"breeze", z:"微風", lv:11},
+  {w:"mathematical", z:"數學的", lv:11},
+  {w:"postpone", z:"延期", lv:11},
+  {w:"emperor", z:"皇帝", lv:11},
+  {w:"feather", z:"羽毛", lv:11},
+  {w:"wrap", z:"包裝", lv:11},
+  {w:"dose", z:"藥劑", lv:11},
+  {w:"drown", z:"使溺斃", lv:11},
+  {w:"bunch", z:"一束", lv:11},
+  {w:"motel", z:"汽車旅館", lv:11},
+  {w:"suicide", z:"自殺", lv:11},
+  {w:"mess", z:"凌亂的", lv:11},
+  {w:"separation", z:"分離", lv:11},
+  {w:"bush", z:"灌木叢", lv:11},
+  {w:"panic", z:"驚恐", lv:11},
+  {w:"seal", z:"密封", lv:11},
+  {w:"recorder", z:"錄音機", lv:11},
+  {w:"afterward", z:"之後", lv:11},
+  {w:"ladder", z:"梯子", lv:11},
+  {w:"skip", z:"跳過", lv:11},
+  {w:"plug", z:"插頭", lv:11},
+  {w:"humor", z:"幽默", lv:11},
+  {w:"deed", z:"行為", lv:11},
+  {w:"stomach", z:"胃", lv:11},
+  {w:"misery", z:"悲慘", lv:11},
+  {w:"fold", z:"折疊", lv:11},
+  {w:"punch", z:"拳擊", lv:11},
+  {w:"label", z:"標籤", lv:11},
+  {w:"regret", z:"後悔", lv:11},
+  {w:"jazz", z:"爵士樂", lv:11},
+  {w:"jeep", z:"吉普車", lv:11},
+  {w:"outdoor", z:"戶外的", lv:11},
+  {w:"bold", z:"大膽的", lv:11},
+  {w:"spit", z:"吐出", lv:11},
+  {w:"timber", z:"木材", lv:11},
+  {w:"jail", z:"監獄", lv:11},
+  {w:"flavor", z:"口味", lv:11},
+  {w:"transport", z:"運送", lv:11},
+  {w:"hourly", z:"每小時的", lv:11},
+  {w:"stiff", z:"硬的", lv:11},
+  {w:"rag", z:"破布", lv:11},
+  {w:"rob", z:"搶奪", lv:11},
+  {w:"aboard", z:"在…（車）上", lv:11},
+  {w:"athlete", z:"運動員", lv:11},
+  {w:"ribbon", z:"彩帶", lv:11},
+  {w:"tune", z:"曲調", lv:11},
+  {w:"dim", z:"微暗的", lv:11},
+  {w:"carriage", z:"馬車", lv:11},
+  {w:"thankful", z:"感謝的", lv:11},
+  {w:"brass", z:"黃銅", lv:11},
+  {w:"shallow", z:"淺的", lv:11},
+  {w:"kidney", z:"腎臟", lv:11},
+  {w:"saucer", z:"茶托", lv:11},
+  {w:"receiver", z:"聽筒", lv:11},
+  {w:"mighty", z:"強大的", lv:11},
+  {w:"swift", z:"迅速的", lv:11},
+  {w:"approve", z:"批准", lv:11},
+  {w:"lightning", z:"閃電", lv:11},
+  {w:"pitch", z:"投球", lv:11},
+  {w:"ash", z:"灰", lv:11},
+  {w:"rumor", z:"謠言", lv:11},
+  {w:"echo", z:"回音", lv:11},
+  {w:"sweat", z:"出汗", lv:11},
+  {w:"tub", z:"澡盆", lv:11},
+  {w:"peel", z:"水果皮", lv:11},
+  {w:"handy", z:"方便的", lv:11},
+  {w:"outline", z:"大綱", lv:11},
+  {w:"tray", z:"托盤", lv:11},
+  {w:"hasty", z:"急忙的", lv:11},
+  {w:"saving", z:"存款", lv:11},
+  {w:"sincere", z:"誠懇的", lv:11},
+  {w:"inspect", z:"檢查", lv:11},
+  {w:"spray", z:"噴灑", lv:11},
+  {w:"lobby", z:"大廳", lv:11},
+  {w:"halfway", z:"中途", lv:11},
+  {w:"fond", z:"喜好的", lv:11},
+  {w:"harvest", z:"收穫", lv:11},
+  {w:"gamble", z:"賭博", lv:11},
+  {w:"sleeve", z:"袖子", lv:11},
+  {w:"truthful", z:"誠實的", lv:11},
+  {w:"kilometer", z:"公里", lv:11},
+  {w:"awful", z:"可怕的", lv:11},
+  {w:"discount", z:"打折", lv:11},
+  {w:"drain", z:"排掉", lv:11},
+  {w:"pit", z:"坑", lv:11},
+  {w:"chip", z:"碎片", lv:11},
+  {w:"tug", z:"突然拉扯", lv:11},
+  {w:"beetle", z:"甲蟲", lv:11},
+  {w:"apron", z:"圍裙", lv:11},
+  {w:"cock", z:"公雞", lv:11},
+  {w:"fighter", z:"戰士", lv:11},
+  {w:"brick", z:"磚頭", lv:11},
+  {w:"spaghetti", z:"細條義大利麵", lv:11},
+  {w:"steam", z:"水蒸氣", lv:11}
 ];
 const TOTAL = WORDS.length;
-/* 分級：編號 → 顯示名稱（核13～核15 是另一份清單，排在 L4 之後） */
-const LEVELS = [1,2,3,4,5,6,7];
-const LVNAME = {1:"L1",2:"L2",3:"L3",4:"L4",5:"核13",6:"核14",7:"核15"};
-const LSKEY  = "vocab_high_en_v4";
-const LSOLD3 = "vocab_high_en_v3";   /* 管理版：記的是穩定編號 b0、b1… */
-const LSOLD2 = "vocab_high_en_v2";   /* 更早的寫死版：記的是「第幾個字」 */
-const OLDCNT = 171;                  /* 管理版內建字數 */
-const OLDHEAD = 79;                  /* 舊清單前 79 字＝L1～L3，順序與新版完全相同 */
-const L4CNT = 38;                    /* L4 字數（插在 L1～L3 之後） */
+/* 分級：編號 → 顯示名稱（L1～L6 是課本清單，核13～核15、核16、核17～19 是另一份，接在後面） */
+const LEVELS = [1,2,3,4,5,6,7,8,9,10,11];
+const LVNAME = {1:"L1",2:"L2",3:"L3",4:"L4",5:"L5",6:"L6",
+                7:"核13",8:"核14",9:"核15",10:"核16",11:"核17~19"};
+const LSKEY  = "vocab_high_en_v5";
+const LSOLD4 = "vocab_high_en_v4";   /* 209 字：L1～L4＋核13～核15 */
+const LSOLD3 = "vocab_high_en_v3";   /* 管理版：記的是穩定編號 b0、b1…（171 字） */
+const LSOLD2 = "vocab_high_en_v2";   /* 更早的寫死版：記的是「第幾個字」（171 字） */
+/* 舊版索引 → 新版索引：舊清單前半段的字沒動，後半段（核13 之後）整段往後挪 */
+const V4HEAD   = 117;   /* v4 前 117 字＝L1～L4，位置與新版相同 */
+const V4SHIFT  = 79;    /* v4 的核13 之後 → 再多 L5（37）＋L6（42） */
+const OLDCNT   = 171;   /* v2／v3 字數 */
+const OLDHEAD  = 79;    /* v2／v3 前 79 字＝L1～L3，位置與新版相同 */
+const OLDSHIFT = 117;   /* v2／v3 的核13 之後 → 再多 L4（38）＋L5（37）＋L6（42） */
+const NEWLVS   = [4,5,6,10,11];   /* 這一版新增的分級：接手舊進度時自動打開 */
 /* ================= 設定與進度 ================= */
-const DEFSET = {sfx:true, auto:true, vib:true, range:[1,2,3,4,5,6,7]};
+const DEFSET = {sfx:true, auto:true, vib:true, range:LEVELS.slice()};
 const DEF = {learned:[], wrong:[], q:0, right:0, last:0, set:{}};
 /* 進度在下面換算工具都定義好之後才讀（load 會用到 LVOLD2NEW） */
 
-/* 舊進度換算：管理版記穩定編號（b0、b1…），更早的版本記「第幾個字」。
-   舊清單順序＝L1、L2、L3、核13、核14、核15；新版只是把 L4 插在 L1～L3 後面，
-   所以前 79 字索引不動，後面 92 字各往後挪 38 格。 */
+/* 舊進度換算：v4 記「第幾個字」（209 字），管理版 v3 記穩定編號（b0、b1…），
+   更早的 v2 記「第幾個字」（171 字）。
+   舊清單順序＝L1、L2、L3、核13、核14、核15（v4 多了 L4）；新版＝L1～L6、核13～核15、核16、核17～19。
+   所以舊清單前半段（L1～L3／L1～L4）索引不動，核13 以後整段往後挪。 */
+function v4ToNew(oi){
+  if(typeof oi!=="number" || oi<0 || oi>=209) return -1;
+  return oi<V4HEAD ? oi : oi+V4SHIFT;
+}
 function oldToNew(oi){
   if(typeof oi!=="number" || oi<0 || oi>=OLDCNT) return -1;
-  return oi<OLDHEAD ? oi : oi+L4CNT;
+  return oi<OLDHEAD ? oi : oi+OLDSHIFT;
 }
-function convOld(a){
+function convOld(a, fn){
   const out=[];
   if(!Array.isArray(a)) return out;
   for(let k=0;k<a.length;k++){
     const v=a[k];
     let ni=-1;
-    if(typeof v==="number") ni = oldToNew(v);
-    else if(typeof v==="string" && v.charAt(0)==="b") ni = oldToNew(parseInt(v.slice(1),10));
+    if(typeof v==="number") ni = fn(v);
+    else if(typeof v==="string" && v.charAt(0)==="b") ni = fn(parseInt(v.slice(1),10));
     if(ni>=0 && ni<TOTAL && out.indexOf(ni)<0) out.push(ni);
   }
   return out;
 }
-/* 舊分級編號 → 新版：1～3 不變；舊 4、5、6（核13～15）往後挪一格 */
-const LVOLD2NEW = {1:1, 2:2, 3:3, 4:5, 5:6, 6:7};
+/* 舊分級編號 → 新版：v4 的 1～4 不變，舊 5、6、7（核13～15）往後挪兩格；
+   v2／v3 沒有 L4，所以舊 4、5、6（核13～15）再往前錯一級 */
+const LV4_2NEW  = {1:1, 2:2, 3:3, 4:4, 5:7, 6:8, 7:9};
+const LVOLD2NEW = {1:1, 2:2, 3:3, 4:7, 5:8, 6:9};
 let S = load();
-function convRange(r){
+function convRange(r, map){
   const out=[];
   if(Array.isArray(r)){
     for(let k=0;k<r.length;k++){
-      const n = LVOLD2NEW[r[k]];
+      const n = map[r[k]];
       if(n && out.indexOf(n)<0) out.push(n);
     }
   }
+  if(!out.length) return LEVELS.slice();     /* 舊紀錄的範圍對不上 → 全部打開 */
+  for(let k=0;k<NEWLVS.length;k++) if(out.indexOf(NEWLVS[k])<0) out.push(NEWLVS[k]);
   return out;
 }
 function load(){
@@ -432,20 +662,22 @@ function load(){
       };
     }
   }catch(e){}
-  /* 沒有新版紀錄 → 接手舊版（先找管理版 v3，再找更早的 v2），換算完直接存成新版 */
+  /* 沒有 v5 紀錄 → 依序接手 v4、管理版 v3、更早的 v2，換算完直接存成 v5 */
   let mig = null;
   try{
-    let o = null;
-    const raw3 = localStorage.getItem(LSOLD3);
-    if(raw3) o = JSON.parse(raw3);
+    let o = null, fn = null, map = null;
+    const raw4 = localStorage.getItem(LSOLD4);
+    if(raw4){ o = JSON.parse(raw4); fn = v4ToNew; map = LV4_2NEW; }
     else {
+      const raw3 = localStorage.getItem(LSOLD3);
       const raw2 = localStorage.getItem(LSOLD2);
-      if(raw2) o = JSON.parse(raw2);
+      const rr = raw3 || raw2;
+      if(rr){ o = JSON.parse(rr); fn = oldToNew; map = LVOLD2NEW; }
     }
     if(o){
-      mig = {learned: convOld(o.learned), wrong: convOld(o.wrong),
+      mig = {learned: convOld(o.learned, fn), wrong: convOld(o.wrong, fn),
              q: o.q||0, right: o.right||0, last: o.last||0,
-             range: convRange(o.set && o.set.range),
+             range: convRange(o.set && o.set.range, map),
              sfx: o.set ? !!o.set.sfx : true,
              auto: o.set ? !!o.set.auto : true,
              vib: o.set ? !!o.set.vib : true};
@@ -455,8 +687,8 @@ function load(){
     const d = JSON.parse(JSON.stringify(DEF));
     d.learned = mig.learned; d.wrong = mig.wrong;
     d.q = mig.q; d.right = mig.right; d.last = mig.last;
-    /* 範圍照舊勾選搬過來，這次多出來的 L4 一次幫他打開 */
-    const r = (mig.range && mig.range.length) ? mig.range.concat([4]) : null;
+    /* 範圍照舊勾選搬過來，這一版多出來的 L5、L6、核16、核17～19 一次幫他打開 */
+    const r = (mig.range && mig.range.length) ? mig.range : null;
     const keep = {sfx:mig.sfx, auto:mig.auto, vib:mig.vib, range:r};
     d.set = fixSet(r ? Object.assign({}, DEFSET, keep) : keep);
     try{ localStorage.setItem(LSKEY, JSON.stringify(d)); }catch(e){}
@@ -725,7 +957,10 @@ function rangePicker(picked){
   for(let k=0;k<LEVELS.length;k++){
     const lv = LEVELS[k];
     const on = S.set.range.indexOf(lv)>=0;
-    h += '<button class="chip'+(on?' on':'')+'" data-lv="'+lv+'">'+lvName(lv)+'<span class="n">'+lvCount(lv)+' 字</span></button>';
+    const nm = lvName(lv);
+    /* 名字太長的（核17~19）縮小一級、不換行，免得把格子撐高 */
+    h += '<button class="chip'+(on?' on':'')+(nm.length>4?' wide':'')+'" data-lv="'+lv+'">'
+       + '<span class="nm">'+nm+'</span><span class="n">'+lvCount(lv)+' 字</span></button>';
   }
   h += '</div><div class="tipline" style="margin-top:10px">可多選，沒有勾選的不會出題</div></div>';
   return h;
